@@ -9,12 +9,14 @@
  * -------------------------------------------------------------
  */
 
-// require_once 'includes/auth.php';     // session + login helpers
 // require_once 'database/db.php';       // $conn
 // require_once 'includes/helpers.php';  // format_price(), nav_href(), etc.
 
 session_start();
 
+$current_page = 'home';
+
+require_once 'auth/auth.php';     // session + login helpers
 require_once 'stuff.php';            // $site_name, $nav_items, etc.
 require 'includes/header.php';
 ?>

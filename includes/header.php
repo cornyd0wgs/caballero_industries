@@ -1,6 +1,7 @@
 <?php
 
     require_once __DIR__ . '/../stuff.php';
+    
 
 ?>
 <!DOCTYPE html>
@@ -47,6 +48,12 @@
               </a>
             </li>
           <?php endforeach; ?>
+           <?php if (is_logged_in()) : ?>
+            <li><a href="logout.php" class="nav-link">LOGOUT</a></li>
+          <?php else : ?>
+            <li><a href="login.php" class="nav-link<?php echo $current_page === 'login' ? ' active' : ''; ?>">LOGIN</a></li>
+            <li><a href="register.php" class="nav-link<?php echo $current_page === 'register' ? ' active' : ''; ?>">SIGN UP</a></li>
+          <?php endif; ?>
         </ul>
       </nav>
 

@@ -844,3 +844,41 @@ section {
     width: auto;
   }
 }
+
+
+
+
+/*AUTH*/
+
+.auth-section {
+  padding-top: calc(var(--status-bar-height) + var(--header-height) + 80px);
+  min-height: 70vh;
+}
+
+.auth-container {
+  max-width: 440px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.auth-switch,
+.auth-hint {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--color-gray);
+  margin-top: 24px;
+}
+
+.auth-switch a,
+.auth-hint {
+  color: var(--color-accent);
+}
+
+.auth-hint {
+  opacity: 0.7;
+}
