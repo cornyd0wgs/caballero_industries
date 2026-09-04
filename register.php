@@ -11,8 +11,8 @@
 require_once __DIR__ . '/database/db.php';
 require_once __DIR__ . '/auth/auth.php';
 require_once  __DIR__ . '/auth/validation.php';
-require_once  __DIR__ .  '../helpers.php';
-require_once  __DIR__ .  '../stuff.php';
+require_once 'helpers.php';
+require_once 'stuff.php';
 $current_page = 'register';
 
 // Already logged in? No need to be here.
@@ -147,4 +147,4 @@ require 'includes/header.php';
       </div>
     </section>
 
-<?php require '/includes/footer.php'; ?>
+<?php require 'includes/footer.php'; ?>
