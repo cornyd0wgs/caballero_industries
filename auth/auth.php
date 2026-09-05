@@ -12,6 +12,14 @@ function is_admin() {
     return is_logged_in() && $_SESSION['user_role'] === 'admin';
 }
 
+function current_user_name() {
+    return $_SESSION['user_name'] ?? null;
+}
+
+function current_user_id() {
+    return $_SESSION['user_id'] ?? null;
+}
+
 function require_login() {
     if (!is_logged_in()) {
         $current_path = $_SERVER['REQUEST_URI'];

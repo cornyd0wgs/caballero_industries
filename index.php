@@ -13,12 +13,16 @@
 // require_once 'includes/helpers.php';  // format_price(), nav_href(), etc.
 
 session_start();
-
 $current_page = 'home';
 
 require_once 'auth/auth.php';     // session + login helpers
+require_once __DIR__ .'/database/db.php';
 require_once 'stuff.php';            // $site_name, $nav_items, etc.
 require 'includes/header.php';
+
+
+$collection_result = mysqli_query($conn, 'SELECT * FROM products ORDER BY created_at DESC');
+$collection_products = mysqli_fetch_all($collection_result, MYSQLI_ASSOC);
 ?>
 
     <!-- =========================================================
