@@ -1,4 +1,13 @@
 <?php
+/**
+ * config.php
+ * -------------------------------------------------------------
+ * All the text/content for the site lives here as plain PHP
+ * arrays. index.php loops over these arrays to build the page.
+ * Edit the values below to change site content — no HTML editing
+ * needed for things like nav links, products, or principles.
+ * -------------------------------------------------------------
+ */
 
 // Basic site info
 $site_name  = 'CABALLERO INDUSTRIES';
@@ -8,12 +17,16 @@ $site_year  = date('Y'); // updates automatically every year
 $status_left  = '[ LOC. 14.5995&deg; N / 120.9842&deg; E ] // SECURE_LINE_ONLINE';
 $status_right = 'VER. 25.4.19 // TACTICAL_CORE';
 
-// Main navigation
+// Main navigation.
+// type "anchor" = a section on the homepage (e.g. #gallery)
+// type "page"   = a separate .php file (has its own "href")
+// includes/helpers.php (nav_href) turns these into the right URL
+// depending on which page is currently open.
 $nav_items = array(
-    array('label' => 'HOME',       'target' => 'home'),
-    array('label' => 'ABOUT ME',   'target' => 'about'),
-    array('label' => 'GALLERY',    'target' => 'gallery'),
-    array('label' => 'CONTACT US', 'target' => 'contact'),
+    array('label' => 'HOME',       'type' => 'anchor', 'target' => 'home'),
+    array('label' => 'ABOUT ME',   'type' => 'anchor', 'target' => 'about'),
+    array('label' => 'GALLERY',    'type' => 'anchor', 'target' => 'gallery'),
+    array('label' => 'CONTACT US', 'type' => 'page',   'href' => 'contact.php'),
 );
 
 // Strategic principles cards
@@ -36,37 +49,10 @@ $principles = array(
     ),
 );
 
-// Featured collection products
-$products = array(
-    array(
-        'code'  => 'CI 001',
-        'name'  => 'TACTICAL JACKET',
-        'price' => '&#8369;2,450',
-        'image' => 'images/jacket1.png',
-        'alt'   => 'Caballero Industries tactical jacket',
-    ),
-    array(
-        'code'  => 'CI 002',
-        'name'  => 'TACTICAL CAP',
-        'price' => '&#8369;950',
-        'image' => 'images/hat.png',
-        'alt'   => 'Caballero Industries tactical cap',
-    ),
-    array(
-        'code'  => 'CI 003',
-        'name'  => 'TACTICAL BAG',
-        'price' => '&#8369;1,650',
-        'image' => 'images/bag.png',
-        'alt'   => 'Caballero Industries tactical bag',
-    ),
-    array(
-        'code'  => 'CI 004',
-        'name'  => 'TACTICAL HOODIE',
-        'price' => '&#8369;2,150',
-        'image' => 'images/jacket.png',
-        'alt'   => 'Caballero Industries tactical hoodie',
-    ),
-);
+// NOTE: products used to be a static array here. They now live in the
+// "products" database table instead (see database/schema.sql), so the
+// homepage and product pages query the database directly. This keeps
+// products editable through the admin pages without touching code.
 
 // Validated integrations / partner blocks (fictional brand-network
 // callouts, not real company endorsements)
@@ -80,16 +66,16 @@ $partners = array(
 // Footer link columns: 'Column Title' => list of [label, url]
 $footer_columns = array(
     'COMPANY' => array(
-        array('Home', '#home'),
-        array('About', '#about'),
-        array('Gallery', '#gallery'),
-        array('Contact', '#contact'),
+        array('Home', 'index.php#home'),
+        array('About', 'index.php#about'),
+        array('Gallery', 'index.php#gallery'),
+        array('Contact', 'contact.php'),
     ),
     'COLLECTION' => array(
-        array('Jackets', '#gallery'),
-        array('Caps', '#gallery'),
-        array('Bags', '#gallery'),
-        array('Hoodies', '#gallery'),
+        array('Jackets', 'index.php#gallery'),
+        array('Caps', 'index.php#gallery'),
+        array('Bags', 'index.php#gallery'),
+        array('Hoodies', 'index.php#gallery'),
     ),
     'SUPPORT' => array(
         array('FAQ', '#'),

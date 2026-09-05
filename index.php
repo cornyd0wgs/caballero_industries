@@ -95,31 +95,45 @@ require 'includes/header.php';
     <section class="collection" id="gallery">
       <div class="container">
 
-        <p class="section-index">READY_RESERVES // 03</p>
+        <p class="section-index">READY_RESERVES // 04</p>
 
         <div class="section-intro section-intro-split">
           <div>
             <p class="tech-label">// SPEC_OPS_GEAR</p>
             <h2 class="section-heading">FEATURED COLLECTION</h2>
           </div>
-          <p class="collection-meta">DEPT_LIST_V25 // <?php echo count($products); ?> PIECES LOADED</p>
+          <p class="collection-meta">DEPT_LIST_V25 // <?php echo count($collection_products); ?> PIECES LOADED</p>
         </div>
 
-        <div class="product-grid">
-          <?php foreach ($products as $product) : ?>
-            <article class="product-card">
-              <div class="product-image">
-                <span class="product-tag">SYS.ACTIVE</span>
-                <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['alt']; ?>" data-fallback="product">
-              </div>
-              <div class="product-info">
-                <p class="product-code"><?php echo $product['code']; ?></p>
-                <h3 class="product-name"><?php echo $product['name']; ?></h3>
-                <p class="product-price"><?php echo $product['price']; ?></p>
-              </div>
-            </article>
-          <?php endforeach; ?>
-        </div>
+        <?php if (empty($collection_products)) : ?>
+          <p class="body-text">No products yet — add one from the admin panel.</p>
+        <?php else : ?>
+          <div class="product-grid">
+            <?php foreach ($collection_products as $product) : ?>
+              <a href="product.php?id=<?php echo (int) $product['id']; ?>" class="product-card">
+                <div class="product-image">
+                  <span class="product-tag">SYS.ACTIVE</span>
+                  <?php if ((int) $product['quantity'] === 0) : ?>
+                    <span class="product-tag product-tag-soldout">SOLD OUT</span>
+                  <?php endif; ?>
+                  <img src="<?php echo safe_output($product['image']); ?>" alt="<?php echo safe_output($product['name']); ?>" data-fallback="product">
+                </div>
+                <div class="product-info">
+                  <p class="product-code"><?php echo safe_output($product['product_code']); ?></p>
+                  <h3 class="product-name"><?php echo safe_output($product['name']); ?></h3>
+                  <?php if ($product['discount_price']) : ?>
+                    <p class="product-price">
+                      <span class="price-old"><?php echo format_price($product['price']); ?></span>
+                      <?php echo format_price($product['discount_price']); ?>
+                    </p>
+                  <?php else : ?>
+                    <p class="product-price"><?php echo format_price($product['price']); ?></p>
+                  <?php endif; ?>
+                </div>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
     </section>
 

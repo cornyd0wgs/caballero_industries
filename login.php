@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * Sign-in page. Checks the submitted email/password against the
  * database, and on success stores the user's info in $_SESSION
- * so other pages can tell they're logged in (see includes/auth.php).
+ * so other pages can tell they're logged in (see auth/auth.php).
  * -------------------------------------------------------------
  */
 
@@ -101,8 +101,6 @@ require 'includes/header.php';
         </form>
 
         <p class="auth-switch">New here? <a href="register.php">Create an account</a></p>
-
-        <!-- <p class="auth-hint">Admin demo login: admin@caballeroindustries.com / Admin123!</p> -->
       </div>
     </section>
 

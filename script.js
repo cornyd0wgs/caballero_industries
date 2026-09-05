@@ -1,13 +1,3 @@
-/* =====================================================================
-   CABALLERO INDUSTRIES — SCRIPT.JS
-   1. Mobile hamburger menu
-   2. Smooth scrolling navigation
-   3. Active navigation state (on scroll)
-   4. Product card hover/interaction
-   5. Image fallback if an image fails to load
-   6. Contact form validation (runs only if a #contactForm exists)
-===================================================================== */
-
 document.addEventListener('DOMContentLoaded', function () {
 
   /* -------------------------------------------------------------

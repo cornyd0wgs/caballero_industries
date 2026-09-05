@@ -17,7 +17,7 @@ $current_page = 'register';
 
 // Already logged in? No need to be here.
 if (is_logged_in()) {
-    header('Location: ../index.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // (passwords are intentionally NOT kept, for safety)
     $old = array('full_name' => $full_name, 'email' => $email, 'age' => $age);
 
-    // ---- Run every field through validation.php ----
+    // ---- Run every field through auth/validation.php ----
     if (!validate_name($full_name)) {
         $errors[] = 'Please enter your real name using letters only (no numbers or symbols).';
     }
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_name'] = $full_name;
         $_SESSION['user_role'] = 'customer';
 
-        header('Location: ../index.php');
+        header('Location: index.php');
         exit;
     }
 }
