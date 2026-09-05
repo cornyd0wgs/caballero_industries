@@ -1,16 +1,5 @@
 <?php
-/**
- * index.php
- * -------------------------------------------------------------
- * Homepage. Static sections (hero, ethos, principles, values) are
- * plain HTML like before. The two product areas now come straight
- * from the database, so adding a product in admin/add-product.php
- * shows up here automatically — no code changes needed.
- * -------------------------------------------------------------
- */
 
-// require_once 'database/db.php';       // $conn
-// require_once 'includes/helpers.php';  // format_price(), nav_href(), etc.
 
 session_start();
 $current_page = 'home';

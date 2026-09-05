@@ -1,12 +1,5 @@
 <?php
-/**
- * includes/footer.php
- * -------------------------------------------------------------
- * Closes </main>, renders the footer (looping over $footer_columns),
- * then closes the page. Expects $site_name, $site_year,
- * $footer_columns to already be set.
- * -------------------------------------------------------------
- */
+
     require_once __DIR__ . '/../stuff.php';
 ?>
   </main>
