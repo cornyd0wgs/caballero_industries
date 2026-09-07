@@ -27,7 +27,7 @@ require 'includes/header.php';
             <p class="tech-label">// INVENTORY_CONTROL</p>
             <h1 class="section-heading">MANAGE PRODUCTS</h1>
           </div>
-          <a href="admin-add-product.php" class="btn btn-primary">ADD PRODUCT <span class="arrow">→</span></a>
+          <a href="add-products.php" class="btn btn-primary">ADD PRODUCT <span class="arrow">→</span></a>
         </div>
 
         <?php if ($flash_success) : ?>
