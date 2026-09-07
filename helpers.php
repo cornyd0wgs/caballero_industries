@@ -13,14 +13,17 @@ function get_cart_count($conn, $user_id) {
         return 0;
     }
 
-    $stmt = mysqli_prepare($conn, 'SELECT SUM(quantity) AS total FROM cart_items WHERE user_id = ?');
-    mysqli_stmt_bind_param($stmt, 'i', $user_id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $row = mysqli_fetch_assoc($result);
-    mysqli_stmt_close($stmt);
+    $stmt = $conn->prepare(
+        'SELECT SUM(quantity) AS total
+         FROM cart_items
+         WHERE user_id = ?'
+    );
 
-    return $row['total'] ? (int) $row['total'] : 0;
+    $stmt->execute([$user_id]);
+
+    $row = $stmt->fetch();
+
+    return ($row && $row['total']) ? (int) $row['total'] : 0;
 }
 
 function nav_href($item, $current_page) {
@@ -29,6 +32,9 @@ function nav_href($item, $current_page) {
     }
 
     // type === 'anchor'
-    return ($current_page === 'home') ? '#' . $item['target'] : 'index.php#' . $item['target'];
+    return ($current_page === 'home')
+        ? '#' . $item['target']
+        : 'index.php#' . $item['target'];
 }
+
 ?>
