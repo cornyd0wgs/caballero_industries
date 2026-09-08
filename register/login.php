@@ -1,24 +1,24 @@
 <?php
 
-require_once __DIR__ . '/auth/auth.php';
-require_once __DIR__ . '/database/db.php';
-require_once __DIR__ . '/auth/validation.php';
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/stuff.php';
+require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../auth/validation.php';
+require_once __DIR__ . '/../helpers/helpers.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 $current_page = 'login';
 
 if (is_logged_in()) {
-    header('Location: index.php');
+    header('Location:' . 'index.php');
     exit;
 }
 
 // Where to send the user after a successful login.
-$redirect_to = $_GET['redirect'] ?? 'index.php';
+$redirect_to = $_GET['redirect'] ?? '../index.php';
 
 // Basic safety check: only allow redirecting to a page on this same site.
 if (strpos($redirect_to, '://') !== false) {
-    $redirect_to = 'index.php';
+    $redirect_to = '../index.php';
 }
 
 $errors = array();
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require __DIR__ . '/includes/header.php';
+require __DIR__ . '/../includes/header.php';
 ?>
 
 <section class="auth-section">
@@ -120,4 +120,4 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

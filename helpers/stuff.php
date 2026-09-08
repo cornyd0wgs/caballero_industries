@@ -9,6 +9,12 @@
  * -------------------------------------------------------------
  */
 
+    define('BASE_URL', '/caballero-industries/');
+    define('CART_URL', '/caballero-industries/carts/');
+    define('ADMIN_URL', '/caballero-industries/admin/');
+    define('REGISTER_URL', '/caballero-industries/register/');
+    // define('CONTACT_URL','/caballero-industries/contacts/');
+
 // Basic site info
 $site_name  = 'CABALLERO INDUSTRIES';
 $site_year  = date('Y'); // updates automatically every year
@@ -17,16 +23,18 @@ $site_year  = date('Y'); // updates automatically every year
 $status_left  = '[ LOC. 14.5995&deg; N / 120.9842&deg; E ] // SECURE_LINE_ONLINE';
 $status_right = 'VER. 25.4.19 // TACTICAL_CORE';
 
+
+
 // Main navigation.
 // type "anchor" = a section on the homepage (e.g. #gallery)
 // type "page"   = a separate .php file (has its own "href")
 // includes/helpers.php (nav_href) turns these into the right URL
 // depending on which page is currently open.
 $nav_items = array(
-    array('label' => 'HOME',       'type' => 'anchor', 'target' => 'home'),
+    array('label' => 'HOME',       'type' => 'anchor', 'target' =>  BASE_URL . 'home'),
     array('label' => 'ABOUT ME',   'type' => 'anchor', 'target' => 'about'),
     array('label' => 'GALLERY',    'type' => 'anchor', 'target' => 'gallery'),
-    array('label' => 'CONTACT US', 'type' => 'page',   'href' => 'contact.php'),
+    array('label' => 'CONTACT US', 'type' => 'page',   'href' => 'contacts/contact.php'),
 );
 
 // Strategic principles cards

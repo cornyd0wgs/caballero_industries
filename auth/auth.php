@@ -23,7 +23,7 @@ function current_user_id() {
 function require_login() {
     if (!is_logged_in()) {
         $current_path = $_SERVER['REQUEST_URI'];
-        header('Location: login.php?redirect=' . urlencode($current_path));
+        header('Location: ' . '../register/login.php?redirect=' . urlencode($current_path));
         exit;
     }
 }
@@ -32,7 +32,7 @@ function require_admin() {
     require_login();
 
     if (!is_admin()) {
-        header('Location: index.php');
+        header('Location:' . '../index.php');
         exit;
     }
 }

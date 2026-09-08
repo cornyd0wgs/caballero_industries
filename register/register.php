@@ -1,16 +1,16 @@
 <?php
 
-require_once __DIR__ . '/database/db.php';
-require_once __DIR__ . '/auth/auth.php';
-require_once __DIR__ . '/auth/validation.php';
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/stuff.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../auth/validation.php';
+require_once __DIR__ . '/../helpers/helpers.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 $current_page = 'register';
 
 // Already logged in? No need to be here.
 if (is_logged_in()) {
-    header('Location: index.php');
+    header('Location:' . '../index.php');
     exit;
 }
 
@@ -100,12 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_name'] = $full_name;
         $_SESSION['user_role'] = 'customer';
 
-        header('Location: index.php');
+        header('Location:' . '../index.php');
         exit;
     }
 }
 
-require __DIR__ . '/includes/header.php';
+require __DIR__ . '/../includes/header.php';
 ?>
 
 <section class="auth-section">
@@ -161,4 +161,4 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

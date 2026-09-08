@@ -28,13 +28,17 @@ function get_cart_count($conn, $user_id) {
 
 function nav_href($item, $current_page) {
     if ($item['type'] === 'page') {
-        return $item['href'];
+        // Ensure page links start from root directory
+        return BASE_URL . $item['href'];
     }
 
     // type === 'anchor'
-    return ($current_page === 'home')
-        ? '#' . $item['target']
-        : 'index.php#' . $item['target'];
+    if ($current_page === 'home') {
+        return '#' . $item['target'];
+    }
+
+    // On subpages, return absolute path back to index.php with anchor
+    return BASE_URL . 'index.php#' . $item['target'];
 }
 
 ?>

@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/auth/auth.php';
-require_once __DIR__ . '/database/db.php';
-require_once __DIR__ . '/auth/validation.php';
+require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../auth/validation.php';
 
 require_login();
 

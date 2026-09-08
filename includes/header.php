@@ -30,9 +30,10 @@ $cart_count = is_logged_in()
         content="Caballero Industries — high-performance tactical apparel and equipment engineered for durability, function, and unrestricted movement."
     >
 
-    <link rel="icon" type="image/png" href="images/favicon.png">
+    
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>style.css">
+    <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
 </head>
 
 <body>
@@ -65,12 +66,12 @@ $cart_count = is_logged_in()
         <div class="container header-inner">
 
             <a
-                href="<?php echo $current_page === 'home' ? '#home' : 'index.php'; ?>"
+                href="<<?php echo $current_page === 'home' ? '#home' : BASE_URL; ?>"
                 class="logo"
                 aria-label="<?php echo $site_name; ?> — home"
             >
                 <img
-                    src="assets/logo.png"
+                    src="<?php echo BASE_URL; ?>assets/logo.png"
                     alt="<?php echo $site_name; ?> logo"
                     class="logo-img"
                 >
@@ -115,7 +116,7 @@ $cart_count = is_logged_in()
 
                     <li>
                         <a
-                            href="carts/cart.php"
+                            href="<?php echo CART_URL; ?>cart.php"
                             class="nav-link<?php echo $current_page === 'cart' ? ' active' : ''; ?>"
                         >
                             CART
@@ -136,7 +137,7 @@ $cart_count = is_logged_in()
 
                             <li>
                                 <a
-                                    href="admin/admin.php"
+                                    href="<?php echo ADMIN_URL; ?>admin.php"
                                     class="nav-link"
                                 >
                                     ADMIN
@@ -148,7 +149,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="register/logout.php"
+                                href="<?php echo REGISTER_URL; ?>logout.php"
                                 class="nav-link"
                             >
                                 LOGOUT
@@ -160,7 +161,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="register/login.php"
+                                href="<?php echo REGISTER_URL; ?>login.php"
                                 class="nav-link<?php echo $current_page === 'login' ? ' active' : ''; ?>"
                             >
                                 LOGIN
@@ -169,7 +170,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="register/register.php"
+                                href="<?php echo REGISTER_URL; ?>register.php"
                                 class="nav-link<?php echo $current_page === 'register' ? ' active' : ''; ?>"
                             >
                                 SIGN UP
