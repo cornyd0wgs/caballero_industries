@@ -9,22 +9,29 @@ require_once __DIR__ . '/../helpers/stuff.php';
 $current_page = 'login';
 
 if (is_logged_in()) {
-    header('Location:' . 'index.php');
+    header('Location: ' . BASE_URL);
     exit;
 }
 
 // Where to send the user after a successful login.
-$redirect_to = $_GET['redirect'] ?? '../index.php';
+$redirect_to = $_GET['redirect'] ?? BASE_URL;
 
-// Basic safety check: only allow redirecting to a page on this same site.
-if (strpos($redirect_to, '://') !== false) {
-    $redirect_to = '../index.php';
+// Only allow local redirects inside this website.
+if (
+    !str_starts_with($redirect_to, BASE_URL) ||
+    str_starts_with($redirect_to, '//')
+) {
+    $redirect_to = BASE_URL;
 }
 
 $errors = array();
 $old_email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!verify_csrf()) {
+        $errors[] = 'Your form session expired. Please try again.';
+    }
 
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -59,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
 
+            session_regenerate_id(true);
+
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['full_name'];
             $_SESSION['user_role'] = $user['role'];
@@ -86,6 +95,7 @@ require __DIR__ . '/../includes/header.php';
     <?php endif; ?>
 
     <form class="auth-form" method="post" action="login.php?redirect=<?php echo urlencode($redirect_to); ?>">
+      <?php echo csrf_field(); ?>
 
       <div class="form-row">
         <label for="email">EMAIL</label>

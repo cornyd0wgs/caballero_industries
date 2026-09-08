@@ -95,6 +95,9 @@ $cart_count = is_logged_in()
                             <a
                                 href="<?php echo $href; ?>"
                                 class="nav-link<?php echo $is_active ? ' active' : ''; ?>"
+                                <?php if ($item['type'] === 'anchor') : ?>
+                                    data-section="<?php echo safe_output($item['target']); ?>"
+                                <?php endif; ?>
                             >
                                 <?php echo $item['label']; ?>
                             </a>
