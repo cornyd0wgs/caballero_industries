@@ -1,20 +1,12 @@
 <?php
-/**
- * index.php
- * -------------------------------------------------------------
- * Homepage. Static sections (hero, ethos, principles, values) are
- * plain HTML like before. The product collection comes from the
- * database.
- * -------------------------------------------------------------
- */
 
 session_start();
 $current_page = 'home';
 
 require_once __DIR__ . '/auth/auth.php';
 require_once __DIR__ . '/database/db.php';
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/stuff.php';
+require_once __DIR__ . '/helpers/helpers.php';
+require_once __DIR__ . '/helpers/stuff.php';
 
 require __DIR__ . '/includes/header.php';
 

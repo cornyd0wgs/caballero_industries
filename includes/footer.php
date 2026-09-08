@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../stuff.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 ?>
 </main>

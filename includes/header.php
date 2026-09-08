@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../stuff.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 require_once __DIR__ . '/../auth/auth.php';
-require_once __DIR__ . '/../helpers.php';
+require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../database/db.php';
 
 if (!isset($current_page)) {
@@ -115,7 +115,7 @@ $cart_count = is_logged_in()
 
                     <li>
                         <a
-                            href="cart.php"
+                            href="carts/cart.php"
                             class="nav-link<?php echo $current_page === 'cart' ? ' active' : ''; ?>"
                         >
                             CART
@@ -136,7 +136,7 @@ $cart_count = is_logged_in()
 
                             <li>
                                 <a
-                                    href="admin.php"
+                                    href="admin/admin.php"
                                     class="nav-link"
                                 >
                                     ADMIN
@@ -148,7 +148,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="logout.php"
+                                href="register/logout.php"
                                 class="nav-link"
                             >
                                 LOGOUT
@@ -160,7 +160,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="login.php"
+                                href="register/login.php"
                                 class="nav-link<?php echo $current_page === 'login' ? ' active' : ''; ?>"
                             >
                                 LOGIN
@@ -169,7 +169,7 @@ $cart_count = is_logged_in()
 
                         <li>
                             <a
-                                href="register.php"
+                                href="register/register.php"
                                 class="nav-link<?php echo $current_page === 'register' ? ' active' : ''; ?>"
                             >
                                 SIGN UP

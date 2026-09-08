@@ -1,10 +1,10 @@
 <?php
 
-require_once __DIR__ . '/auth/auth.php';
-require_once __DIR__ . '/auth/validation.php';
-require_once __DIR__ . '/database/db.php';
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/stuff.php';
+require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../auth/validation.php';
+require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../helpers/helpers.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 $current_page = 'admin';
 
@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require __DIR__ . '/includes/header.php';
+require __DIR__ . '/../includes/header.php';
 ?>
 
 <section class="admin-section">
@@ -360,4 +360,4 @@ require __DIR__ . '/includes/header.php';
     </div>
 </section>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
