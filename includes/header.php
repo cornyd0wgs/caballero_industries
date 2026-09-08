@@ -148,16 +148,6 @@ $cart_count = is_logged_in()
                             </a>
                         </li>
 
-                        <li>
-                            <a
-                                href="<?php echo REGISTER_URL; ?>register.php"
-                                class="nav-link<?php echo $current_page === 'register' ? ' active' : ''; ?>"
-                                data-nav-key="register"
-                            >
-                                SIGN UP
-                            </a>
-                        </li>
-
                     <?php endif; ?>
 
                 </ul>

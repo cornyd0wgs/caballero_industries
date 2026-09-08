@@ -393,4 +393,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+
+  /* -------------------------------------------------------------
+     QUANTITY STEPPERS
+     The +/- buttons update the number input while respecting its
+     minimum and maximum values. The form still submits normal PHP.
+  ---------------------------------------------------------------- */
+  document.querySelectorAll('.quantity-stepper').forEach(function (stepper) {
+    const input = stepper.querySelector('input[type="number"]');
+    if (!input) return;
+
+    stepper.querySelectorAll('[data-qty-action]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const min = Number(input.min || 1);
+        const max = Number(input.max || Number.MAX_SAFE_INTEGER);
+        const current = Number(input.value || min);
+        const direction = button.getAttribute('data-qty-action');
+        const next = direction === 'plus' ? current + 1 : current - 1;
+
+        input.value = Math.min(max, Math.max(min, next));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+  });
+
 });

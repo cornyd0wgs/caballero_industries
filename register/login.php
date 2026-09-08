@@ -124,9 +124,12 @@ require __DIR__ . '/../includes/header.php';
 
     </form>
 
-    <p class="auth-switch">
-      New here? <a href="register.php">Create an account</a>
-    </p>
+    <div class="auth-switch auth-switch-panel">
+      <span>DON'T HAVE AN ACCOUNT?</span>
+      <a class="btn btn-secondary auth-signup-btn" href="register.php?redirect=<?php echo urlencode($redirect_to); ?>">
+        CREATE ACCOUNT <span class="arrow">→</span>
+      </a>
+    </div>
   </div>
 </section>
 
