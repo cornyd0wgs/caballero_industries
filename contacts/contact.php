@@ -52,7 +52,8 @@ require __DIR__ . '/../includes/header.php';
                 </ul>
             <?php endif; ?>
 
-            <form class="contact-form" method="post">
+            <form class="contact-form" method="post" action="contact_verifier.php">
+                <?php echo csrf_field(); ?>
                 <div class="form-row">
                     <label for="name">NAME</label>
 

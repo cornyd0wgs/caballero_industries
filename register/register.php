@@ -23,6 +23,10 @@ $old = array(
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf()) {
+        $errors[] = 'Your form session expired. Please try again.';
+    }
+
     $full_name       = trim($_POST['full_name'] ?? '');
     $email           = trim($_POST['email'] ?? '');
     $age             = trim($_POST['age'] ?? '');
@@ -96,6 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_user_id = $conn->lastInsertId();
 
         // Log the new user in immediately.
+        session_regenerate_id(true);
+
         $_SESSION['user_id']   = $new_user_id;
         $_SESSION['user_name'] = $full_name;
         $_SESSION['user_role'] = 'customer';
@@ -122,6 +128,7 @@ require __DIR__ . '/../includes/header.php';
     <?php endif; ?>
 
     <form class="auth-form" method="post" action="register.php">
+      <?php echo csrf_field(); ?>
       <div class="form-row">
         <label for="full_name">FULL NAME</label>
         <input type="text" id="full_name" name="full_name" required

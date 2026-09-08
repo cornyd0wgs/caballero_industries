@@ -33,7 +33,6 @@ $cart_count = is_logged_in()
     
 
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>style.css">
-    <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
 </head>
 
 <body>
@@ -66,7 +65,7 @@ $cart_count = is_logged_in()
         <div class="container header-inner">
 
             <a
-                href="<<?php echo $current_page === 'home' ? '#home' : BASE_URL; ?>"
+                href="<?php echo $current_page === 'home' ? '#home' : BASE_URL; ?>"
                 class="logo"
                 aria-label="<?php echo $site_name; ?> — home"
             >

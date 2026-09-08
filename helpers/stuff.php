@@ -31,7 +31,7 @@ $status_right = 'VER. 25.4.19 // TACTICAL_CORE';
 // includes/helpers.php (nav_href) turns these into the right URL
 // depending on which page is currently open.
 $nav_items = array(
-    array('label' => 'HOME',       'type' => 'anchor', 'target' =>  BASE_URL . 'home'),
+    array('label' => 'HOME',       'type' => 'anchor', 'target' => 'home'),
     array('label' => 'ABOUT ME',   'type' => 'anchor', 'target' => 'about'),
     array('label' => 'GALLERY',    'type' => 'anchor', 'target' => 'gallery'),
     array('label' => 'CONTACT US', 'type' => 'page',   'href' => 'contacts/contact.php'),
@@ -74,16 +74,16 @@ $partners = array(
 // Footer link columns: 'Column Title' => list of [label, url]
 $footer_columns = array(
     'COMPANY' => array(
-        array('Home', 'index.php#home'),
-        array('About', 'index.php#about'),
-        array('Gallery', 'index.php#gallery'),
-        array('Contact', 'contact.php'),
+        array('Home', BASE_URL . 'index.php#home'),
+        array('About', BASE_URL . 'index.php#about'),
+        array('Gallery', BASE_URL . 'index.php#gallery'),
+        array('Contact', BASE_URL . 'contacts/contact.php'),
     ),
     'COLLECTION' => array(
-        array('Jackets', 'index.php#gallery'),
-        array('Caps', 'index.php#gallery'),
-        array('Bags', 'index.php#gallery'),
-        array('Hoodies', 'index.php#gallery'),
+        array('Jackets', BASE_URL . 'index.php#gallery'),
+        array('Caps', BASE_URL . 'index.php#gallery'),
+        array('Bags', BASE_URL . 'index.php#gallery'),
+        array('Hoodies', BASE_URL . 'index.php#gallery'),
     ),
     'SUPPORT' => array(
         array('FAQ', '#'),

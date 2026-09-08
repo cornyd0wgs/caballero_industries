@@ -158,7 +158,7 @@ $collection_products = $stmt->fetchAll();
               <?php endif; ?>
 
               <img
-                src="<?php echo safe_output($product['image']); ?>"
+                src="<?php echo safe_output(asset_url($product['image'])); ?>"
                 alt="<?php echo safe_output($product['name']); ?>"
                 data-fallback="product"
               >

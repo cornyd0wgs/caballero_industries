@@ -77,7 +77,7 @@ require __DIR__ . '/../includes/header.php';
     <?php if (empty($cart_rows)) : ?>
 
       <p class="body-text">Your cart is empty.</p>
-      <a href="index.php#gallery" class="text-link">
+      <a href="<?php echo BASE_URL; ?>index.php#gallery" class="text-link">
         Browse the collection →
       </a>
 
@@ -90,7 +90,7 @@ require __DIR__ . '/../includes/header.php';
           <div class="cart-row">
 
             <img
-              src="<?php echo safe_output($row['image']); ?>"
+              src="<?php echo safe_output(asset_url($row['image'])); ?>"
               alt="<?php echo safe_output($row['name']); ?>"
               class="cart-thumb"
               data-fallback="product"
@@ -99,7 +99,7 @@ require __DIR__ . '/../includes/header.php';
             <div class="cart-row-info">
 
               <a
-                href="product.php?id=<?php echo (int) $row['product_id']; ?>"
+                href="<?php echo BASE_URL; ?>product.php?id=<?php echo (int) $row['product_id']; ?>"
                 class="cart-row-name"
               >
                 <?php echo safe_output($row['name']); ?>
@@ -115,8 +115,9 @@ require __DIR__ . '/../includes/header.php';
             <form
               class="cart-row-qty-form"
               method="post"
-              action="cart-actions.php"
+              action="cart-action.php"
             >
+              <?php echo csrf_field(); ?>
               <input
                 type="hidden"
                 name="action"
@@ -152,8 +153,9 @@ require __DIR__ . '/../includes/header.php';
             <!-- Remove item -->
             <form
               method="post"
-              action="cart-actions.php"
+              action="cart-action.php"
             >
+              <?php echo csrf_field(); ?>
               <input
                 type="hidden"
                 name="action"
@@ -188,7 +190,8 @@ require __DIR__ . '/../includes/header.php';
         </span>
       </div>
 
-      <form method="post" action="cart-actions.php">
+      <form method="post" action="cart-action.php">
+        <?php echo csrf_field(); ?>
         <input
           type="hidden"
           name="action"

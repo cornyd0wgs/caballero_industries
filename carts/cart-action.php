@@ -3,10 +3,17 @@
 require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../auth/validation.php';
+require_once __DIR__ . '/../helpers/helpers.php';
 
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: cart.php');
+    exit;
+}
+
+if (!verify_csrf()) {
+    $_SESSION['flash_error'] = 'Your form session expired. Please try again.';
     header('Location: cart.php');
     exit;
 }
@@ -47,7 +54,7 @@ if ($action === 'add') {
         $_SESSION['flash_error'] =
             'Please choose a valid quantity for that item.';
 
-        header('Location: product.php?id=' . $product_id);
+        header('Location: ' . BASE_URL . 'product.php?id=' . $product_id);
         exit;
     }
 

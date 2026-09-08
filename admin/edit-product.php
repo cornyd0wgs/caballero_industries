@@ -42,6 +42,10 @@ $is_popular  = (int) $product['is_popular'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    if (!verify_csrf()) {
+        $errors[] = 'Your form session expired. Please try again.';
+    }
+
     $old['product_code']  = trim($_POST['product_code'] ?? '');
     $old['name']          = trim($_POST['name'] ?? '');
     $old['description']   = trim($_POST['description'] ?? '');
@@ -127,16 +131,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )
             );
 
-            if (!in_array($extension, $allowed_extensions, true)) {
-                $errors[] = 'Image must be a JPG, PNG, or WEBP file.';
+            $allowed_mime_types = array('image/jpeg', 'image/png', 'image/webp');
+            $mime_type = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['image']['tmp_name']);
+
+            if (
+                !in_array($extension, $allowed_extensions, true) ||
+                !in_array($mime_type, $allowed_mime_types, true)
+            ) {
+                $errors[] = 'Image must be a real JPG, PNG, or WEBP file.';
             } elseif ($_FILES['image']['size'] > 5 * 1024 * 1024) {
                 $errors[] = 'Image must be smaller than 5MB.';
             } else {
                 $safe_filename = uniqid('product_') . '.' . $extension;
 
-                $destination = __DIR__ .
-                    '/images/products/' .
-                    $safe_filename;
+                $upload_dir = __DIR__ . '/../images/products/';
+
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
+                }
+
+                $destination = $upload_dir . $safe_filename;
 
                 $database_image_path =
                     'images/products/' .
@@ -224,12 +238,13 @@ require __DIR__ . '/../includes/header.php';
             action="edit-product.php?id=<?php echo (int) $product_id; ?>"
             enctype="multipart/form-data"
         >
+            <?php echo csrf_field(); ?>
 
             <div class="form-row">
                 <label>CURRENT IMAGE</label>
 
                 <img
-                    src="<?php echo safe_output($product['image']); ?>"
+                    src="<?php echo safe_output(asset_url($product['image'])); ?>"
                     alt=""
                     class="admin-current-image"
                 >

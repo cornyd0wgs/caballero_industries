@@ -1,10 +1,17 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../helpers/helpers.php';
 
 // Only allow POST requests here.
 // Visiting this file directly redirects back to the contact page.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: contact.php');
+    exit;
+}
+
+if (!verify_csrf()) {
+    $_SESSION['contact_errors'] = array('Your form session expired. Please try again.');
     header('Location: contact.php');
     exit;
 }
@@ -17,17 +24,17 @@ $message = isset($_POST['message']) ? trim($_POST['message']) : '';
 $errors = array();
 
 // Validate name.
-if ($name === '') {
+if ($name === '' || strlen($name) > 100) {
     $errors[] = 'Please enter your name.';
 }
 
 // Validate email.
-if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if ($email === '' || strlen($email) > 150 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errors[] = 'Please enter a valid email address.';
 }
 
 // Validate message.
-if ($message === '') {
+if ($message === '' || strlen($message) > 2000) {
     $errors[] = 'Please enter a message.';
 }
 

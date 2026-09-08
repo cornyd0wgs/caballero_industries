@@ -16,7 +16,7 @@ require_once __DIR__ . '/../helpers/stuff.php';
         <div class="footer-brand">
 
             <img
-                src="assets/logo.png"
+                src="<?php echo BASE_URL; ?>assets/logo.png"
                 alt="<?php echo $site_name; ?> logo"
                 class="footer-logo"
             >
@@ -106,7 +106,7 @@ require_once __DIR__ . '/../helpers/stuff.php';
 </footer>
 
 
-<script src="script.js"></script>
+<script src="<?php echo BASE_URL; ?>script.js"></script>
 
 </body>
 </html>

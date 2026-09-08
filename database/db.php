@@ -22,10 +22,13 @@ try {
     // Return database rows as associative arrays.
     $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-} catch (PDOException $e) {
+ } catch (PDOException $e) {
+
+    // Log the technical error, but do not expose it in the browser.
+    error_log($e->getMessage());
 
     die(
-        'Database connection failed: ' . $e->getMessage() . '<br><br>' .
+        'Database connection failed.<br><br>' .
         'Checklist:<br>' .
         '1) Is MySQL running in the XAMPP control panel?<br>' .
         '2) Have you imported database/schema.sql in phpMyAdmin?<br>' .

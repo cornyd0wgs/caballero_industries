@@ -2,10 +2,11 @@
 
 require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
+require_once __DIR__ . '/../helpers/helpers.php';
 
 require_admin();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf()) {
     $product_id = isset($_POST['product_id'])
         ? (int) $_POST['product_id']
         : 0;

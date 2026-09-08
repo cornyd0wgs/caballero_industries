@@ -128,6 +128,8 @@ require __DIR__ . '/../includes/header.php';
                   action="delete-product.php"
                   onsubmit="return confirm('Delete this product? This cannot be undone.');"
                 >
+                  <?php echo csrf_field(); ?>
+
                   <input
                     type="hidden"
                     name="product_id"
