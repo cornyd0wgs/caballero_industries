@@ -13,7 +13,6 @@ function validate_name($name) {
         return false;
     }
 
-    // Require at least 2 characters so a single letter isn't accepted
     if (strlen($name) < 2) {
         return false;
     }

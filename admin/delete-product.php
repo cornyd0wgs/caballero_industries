@@ -22,6 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf()) {
     $_SESSION['flash_success'] = 'Product deleted.';
 }
 
-header('Location: admin.php');
+header('Location: products.php');
 exit;
 

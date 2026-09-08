@@ -13,6 +13,8 @@
     define('CART_URL', '/caballero-industries/carts/');
     define('ADMIN_URL', '/caballero-industries/admin/');
     define('REGISTER_URL', '/caballero-industries/register/');
+    define('ACCOUNT_URL', '/caballero-industries/account/');
+    define('POPULAR_THRESHOLD', 5);
     // define('CONTACT_URL','/caballero-industries/contacts/');
 
 // Basic site info

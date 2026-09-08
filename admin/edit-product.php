@@ -21,7 +21,7 @@ $stmt->execute([$product_id]);
 $product = $stmt->fetch();
 
 if (!$product) {
-    header('Location: admin.php');
+    header('Location: products.php');
     exit;
 }
 
@@ -38,7 +38,6 @@ $old = array(
 );
 
 $is_featured = (int) $product['is_featured'];
-$is_popular  = (int) $product['is_popular'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -54,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old['quantity']      = trim($_POST['quantity'] ?? '');
 
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
-    $is_popular  = isset($_POST['is_popular']) ? 1 : 0;
 
     if ($old['product_code'] === '') {
         $errors[] = 'Product code is required.';
@@ -189,8 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  discount_price = ?,
                  quantity = ?,
                  image = ?,
-                 is_featured = ?,
-                 is_popular = ?
+                 is_featured = ?
              WHERE id = ?'
         );
 
@@ -203,17 +200,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $quantity,
             $image_path,
             $is_featured,
-            $is_popular,
             $product_id
         ]);
 
         $_SESSION['flash_success'] =
             'Product "' . $old['name'] . '" updated.';
 
-        header('Location: admin.php');
+        header('Location: products.php');
         exit;
     }
 }
+
+$sales_stmt = $conn->prepare(
+    "SELECT COALESCE(SUM(oi.quantity), 0)
+     FROM order_items oi
+     JOIN orders o ON o.id = oi.order_id
+     WHERE oi.product_id = ? AND o.status = 'completed'"
+);
+$sales_stmt->execute([$product_id]);
+$units_sold = (int) $sales_stmt->fetchColumn();
 
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -355,15 +360,12 @@ require __DIR__ . '/../includes/header.php';
                     Show in Featured Collection
                 </label>
 
-                <label class="checkbox-label">
-                    <input
-                        type="checkbox"
-                        name="is_popular"
-                        <?php echo $is_popular ? 'checked' : ''; ?>
-                    >
-                    Mark as Popular (shows in homepage carousel)
-                </label>
+            </div>
 
+            <div class="auto-popularity">
+                <span>AUTOMATIC POPULARITY</span>
+                <strong><?php echo $units_sold; ?> SOLD</strong>
+                <em><?php echo $units_sold >= POPULAR_THRESHOLD ? 'POPULAR' : 'STANDARD'; ?></em>
             </div>
 
             <button type="submit" class="btn btn-primary">

@@ -99,6 +99,15 @@ if (!empty($reviews)) {
 }
 
 $display_price = $product['discount_price'] ?: $product['price'];
+$sales_stmt = $conn->prepare(
+    "SELECT COALESCE(SUM(oi.quantity), 0)
+     FROM order_items oi
+     JOIN orders o ON o.id = oi.order_id
+     WHERE oi.product_id = ? AND o.status = 'completed'"
+);
+$sales_stmt->execute([$product_id]);
+$units_sold = (int) $sales_stmt->fetchColumn();
+
 
 require __DIR__ . '/includes/header.php';
 ?>
@@ -107,6 +116,10 @@ require __DIR__ . '/includes/header.php';
     <div class="container product-detail-grid">
 
         <div class="product-detail-image">
+            <div class="product-tags product-tags-detail">
+                <?php if ($units_sold >= POPULAR_THRESHOLD) : ?><span class="slant-tag slant-tag-popular"><span>POPULAR</span></span><?php endif; ?>
+                <?php if ($product['discount_price']) : $discount_percent=(int)round((($product['price']-$product['discount_price'])/$product['price'])*100); ?><span class="slant-tag slant-tag-sale"><span>-<?php echo $discount_percent; ?>%</span></span><?php endif; ?>
+            </div>
             <img
                 src="<?php echo safe_output(asset_url($product['image'])); ?>"
                 alt="<?php echo safe_output($product['name']); ?>"

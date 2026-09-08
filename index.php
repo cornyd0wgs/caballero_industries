@@ -12,9 +12,14 @@ require __DIR__ . '/includes/header.php';
 
 // Products remain database-driven; the redesign only changes presentation.
 $stmt = $conn->prepare(
-    'SELECT *
-     FROM products
-     ORDER BY created_at DESC'
+    "SELECT p.*,
+            COALESCE(SUM(CASE WHEN o.status = 'completed' THEN oi.quantity ELSE 0 END), 0) AS units_sold
+     FROM products p
+     LEFT JOIN order_items oi ON oi.product_id = p.id
+     LEFT JOIN orders o ON o.id = oi.order_id
+     WHERE p.is_featured = 1
+     GROUP BY p.id
+     ORDER BY p.created_at DESC"
 );
 $stmt->execute();
 $collection_products = $stmt->fetchAll();
@@ -167,6 +172,15 @@ $collection_products = $stmt->fetchAll();
         <?php foreach ($collection_products as $product) : ?>
           <a href="product.php?id=<?php echo (int) $product['id']; ?>" class="product-card">
             <div class="product-image">
+              <div class="product-tags">
+                <?php if ((int) $product['units_sold'] >= POPULAR_THRESHOLD) : ?>
+                  <span class="slant-tag slant-tag-popular"><span>POPULAR</span></span>
+                <?php endif; ?>
+                <?php if ($product['discount_price']) : ?>
+                  <?php $discount_percent = (int) round((($product['price'] - $product['discount_price']) / $product['price']) * 100); ?>
+                  <span class="slant-tag slant-tag-sale"><span>-<?php echo $discount_percent; ?>%</span></span>
+                <?php endif; ?>
+              </div>
               <?php if ((int) $product['quantity'] === 0) : ?>
                 <span class="product-tag product-tag-soldout">SOLD OUT</span>
               <?php endif; ?>

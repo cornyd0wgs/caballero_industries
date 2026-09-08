@@ -50,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old['quantity']      = trim($_POST['quantity'] ?? '');
 
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
-    $is_popular  = isset($_POST['is_popular']) ? 1 : 0;
 
     // ---- Validate text fields ----
 
@@ -198,10 +197,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 discount_price,
                 quantity,
                 image,
-                is_featured,
-                is_popular
+                is_featured
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
@@ -212,14 +210,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $discount_price,
             $quantity,
             $image_path,
-            $is_featured,
-            $is_popular
+            $is_featured
         ]);
 
         $_SESSION['flash_success'] =
             'Product "' . $old['name'] . '" added successfully.';
 
-        header('Location: admin.php');
+        header('Location: products.php');
         exit;
     }
 }
@@ -386,15 +383,9 @@ require __DIR__ . '/../includes/header.php';
           Show in Featured Collection
         </label>
 
-        <label class="checkbox-label">
-          <input
-            type="checkbox"
-            name="is_popular"
-          >
-          Mark as Popular (shows in homepage carousel)
-        </label>
-
       </div>
+
+      <p class="form-help">POPULAR status is automatic after <?php echo POPULAR_THRESHOLD; ?> completed unit sales.</p>
 
       <button
         type="submit"

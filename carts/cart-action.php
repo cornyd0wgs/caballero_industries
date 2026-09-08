@@ -258,13 +258,14 @@ if ($action === 'checkout') {
 
         $stmt = $conn->prepare(
             'INSERT INTO orders
-                (user_id, total_amount)
-             VALUES (?, ?)'
+                (user_id, total_amount, status)
+             VALUES (?, ?, ?)'
         );
 
         $stmt->execute([
             $user_id,
-            $grand_total
+            $grand_total,
+            'pending'
         ]);
 
         // PDO equivalent of mysqli_insert_id().
@@ -350,7 +351,7 @@ if ($action === 'checkout') {
 
         $_SESSION['flash_success'] =
             'Order #' . $order_id .
-            ' placed successfully. Thank you!';
+            ' placed successfully and is pending processing.';
 
         header('Location: cart.php');
         exit;

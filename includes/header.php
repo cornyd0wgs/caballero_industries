@@ -119,17 +119,9 @@ $cart_count = is_logged_in()
                     <?php if (is_logged_in()) : ?>
 
                         <?php if (is_admin()) : ?>
-
-                            <li>
-                                <a
-                                    href="<?php echo ADMIN_URL; ?>admin.php"
-                                    class="nav-link<?php echo $current_page === 'admin' ? ' active' : ''; ?>"
-                                    data-nav-key="admin"
-                                >
-                                    ADMIN
-                                </a>
-                            </li>
-
+                            <li><a href="<?php echo ADMIN_URL; ?>admin.php" class="nav-link<?php echo $current_page === 'admin' ? ' active' : ''; ?>" data-nav-key="admin">ADMIN</a></li>
+                        <?php else : ?>
+                            <li><a href="<?php echo ACCOUNT_URL; ?>dashboard.php" class="nav-link<?php echo $current_page === 'account' ? ' active' : ''; ?>" data-nav-key="account">ACCOUNT</a></li>
                         <?php endif; ?>
 
 
