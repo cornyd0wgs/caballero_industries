@@ -107,6 +107,8 @@ $sales_stmt = $conn->prepare(
 );
 $sales_stmt->execute([$product_id]);
 $units_sold = (int) $sales_stmt->fetchColumn();
+$daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
+$is_popular_today = in_array($product_id, $daily_popular_ids, true);
 
 
 require __DIR__ . '/includes/header.php';
@@ -118,7 +120,7 @@ require __DIR__ . '/includes/header.php';
         <div class="product-detail-image-wrap">
             <div class="product-detail-image">
                 <div class="product-tags product-tags-detail">
-                    <?php if ($units_sold >= POPULAR_THRESHOLD) : ?>
+                    <?php if ($is_popular_today) : ?>
                         <span class="slant-tag slant-tag-popular"><span>POPULAR</span></span>
                     <?php endif; ?>
                     <?php if ($product['discount_price']) :

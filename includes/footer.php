@@ -5,6 +5,17 @@ require_once __DIR__ . '/../helpers/stuff.php';
 ?>
 </main>
 
+<?php if (($current_page ?? '') === 'account') : ?>
+
+<footer class="account-footer">
+    <div class="container account-footer-inner">
+        <p>&copy; <?php echo $site_year; ?> CABALLERO INDUSTRIES</p>
+        <a href="<?php echo BASE_URL; ?>">RETURN TO STORE →</a>
+    </div>
+</footer>
+
+<?php elseif (($current_page ?? '') !== 'admin') : ?>
+
 <!-- =========================================================
      FOOTER
 ========================================================== -->
@@ -105,6 +116,7 @@ require_once __DIR__ . '/../helpers/stuff.php';
 
 </footer>
 
+<?php endif; ?>
 
 <script src="<?php echo BASE_URL; ?>script.js?v=<?php echo filemtime(__DIR__ . '/../script.js'); ?>"></script>
 

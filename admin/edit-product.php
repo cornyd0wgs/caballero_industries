@@ -5,18 +5,16 @@ require_once __DIR__ . '/../auth/validation.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../helpers/product-admin.php';
 
 $current_page = 'admin';
+$admin_tab = 'products';
 
 require_admin();
 
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-$stmt = $conn->prepare(
-    'SELECT *
-     FROM products
-     WHERE id = ?'
-);
+$stmt = $conn->prepare('SELECT * FROM products WHERE id = ?');
 $stmt->execute([$product_id]);
 $product = $stmt->fetch();
 
@@ -25,157 +23,55 @@ if (!$product) {
     exit;
 }
 
-$errors = array();
-
-// Pre-fill the form with the product's current values.
-$old = array(
-    'product_code'   => $product['product_code'],
-    'name'           => $product['name'],
-    'description'    => $product['description'],
-    'price'          => $product['price'],
+$errors = [];
+$old = [
+    'product_code' => $product['product_code'],
+    'name' => $product['name'],
+    'description' => $product['description'],
+    'price' => $product['price'],
     'discount_price' => $product['discount_price'],
-    'quantity'       => $product['quantity'],
-);
-
+    'quantity' => $product['quantity'],
+];
 $is_featured = (int) $product['is_featured'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if (!verify_csrf()) {
         $errors[] = 'Your form session expired. Please try again.';
     }
 
-    $old['product_code']  = trim($_POST['product_code'] ?? '');
-    $old['name']          = trim($_POST['name'] ?? '');
-    $old['description']   = trim($_POST['description'] ?? '');
-    $old['price']         = trim($_POST['price'] ?? '');
-    $old['discount_price'] = trim($_POST['discount_price'] ?? '');
-    $old['quantity']      = trim($_POST['quantity'] ?? '');
-
+    $old = [
+        'product_code' => trim($_POST['product_code'] ?? ''),
+        'name' => trim($_POST['name'] ?? ''),
+        'description' => trim($_POST['description'] ?? ''),
+        'price' => trim($_POST['price'] ?? ''),
+        'discount_price' => trim($_POST['discount_price'] ?? ''),
+        'quantity' => trim($_POST['quantity'] ?? ''),
+    ];
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
-    if ($old['product_code'] === '') {
-        $errors[] = 'Product code is required.';
-    }
-
-    if ($old['name'] === '') {
-        $errors[] = 'Product name is required.';
-    }
-
-    if (!is_numeric($old['price']) || (float) $old['price'] <= 0) {
-        $errors[] = 'Price must be a number greater than 0.';
-    }
+    $errors = array_merge($errors, validate_product_values($old));
 
     if (
-        $old['discount_price'] !== '' &&
-        (!is_numeric($old['discount_price']) || (float) $old['discount_price'] <= 0)
+        empty($errors) &&
+        product_code_exists($conn, $old['product_code'], $product_id)
     ) {
-        $errors[] = 'Discount price must be a number greater than 0 (or left blank).';
+        $errors[] = 'That product code is already used by another product.';
     }
 
-    if (
-        $old['discount_price'] !== '' &&
-        is_numeric($old['price']) &&
-        (float) $old['discount_price'] >= (float) $old['price']
-    ) {
-        $errors[] = 'Discount price must be lower than the regular price.';
-    }
+    $image_result = save_product_image(
+        $_FILES['image'] ?? [],
+        $product['image']
+    );
 
-    if (!validate_number_range($old['quantity'], 0, 100000)) {
-        $errors[] = 'Quantity must be a whole number of 0 or more.';
-    }
-
-    // Product code must stay unique, but ignore this product's own row.
-    if (empty($errors)) {
-        $stmt = $conn->prepare(
-            'SELECT id
-             FROM products
-             WHERE product_code = ?
-             AND id != ?'
-        );
-
-        $stmt->execute([
-            $old['product_code'],
-            $product_id
-        ]);
-
-        if ($stmt->fetch()) {
-            $errors[] = 'That product code is already used by another product.';
-        }
-    }
-
-    // Image is optional here.
-    // Only replace the current image if a new file was selected.
-    $image_path = $product['image'];
-
-    if (
-        isset($_FILES['image']) &&
-        $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE
-    ) {
-        if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            $errors[] = 'There was a problem uploading the image. Please try again.';
-        } else {
-            $allowed_extensions = array(
-                'jpg',
-                'jpeg',
-                'png',
-                'webp'
-            );
-
-            $extension = strtolower(
-                pathinfo(
-                    $_FILES['image']['name'],
-                    PATHINFO_EXTENSION
-                )
-            );
-
-            $allowed_mime_types = array('image/jpeg', 'image/png', 'image/webp');
-            $mime_type = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['image']['tmp_name']);
-
-            if (
-                !in_array($extension, $allowed_extensions, true) ||
-                !in_array($mime_type, $allowed_mime_types, true)
-            ) {
-                $errors[] = 'Image must be a real JPG, PNG, or WEBP file.';
-            } elseif ($_FILES['image']['size'] > 5 * 1024 * 1024) {
-                $errors[] = 'Image must be smaller than 5MB.';
-            } else {
-                $safe_filename = uniqid('product_') . '.' . $extension;
-
-                $upload_dir = __DIR__ . '/../images/products/';
-
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0755, true);
-                }
-
-                $destination = $upload_dir . $safe_filename;
-
-                $database_image_path =
-                    'images/products/' .
-                    $safe_filename;
-
-                if (
-                    move_uploaded_file(
-                        $_FILES['image']['tmp_name'],
-                        $destination
-                    )
-                ) {
-                    $image_path = $database_image_path;
-                } else {
-                    $errors[] = 'Could not save the uploaded image.';
-                }
-            }
-        }
+    if ($image_result['error']) {
+        $errors[] = $image_result['error'];
     }
 
     if (empty($errors)) {
         $price = (float) $old['price'];
-
-        $discount_price =
-            $old['discount_price'] !== ''
-                ? (float) $old['discount_price']
-                : null;
-
+        $discount_price = $old['discount_price'] !== ''
+            ? (float) $old['discount_price']
+            : null;
         $quantity = (int) $old['quantity'];
 
         $stmt = $conn->prepare(
@@ -198,14 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $price,
             $discount_price,
             $quantity,
-            $image_path,
+            $image_result['path'],
             $is_featured,
-            $product_id
+            $product_id,
         ]);
 
-        $_SESSION['flash_success'] =
-            'Product "' . $old['name'] . '" updated.';
-
+        $_SESSION['flash_success'] = 'Product "' . $old['name'] . '" updated.';
         header('Location: products.php');
         exit;
     }
@@ -220,161 +114,27 @@ $sales_stmt = $conn->prepare(
 $sales_stmt->execute([$product_id]);
 $units_sold = (int) $sales_stmt->fetchColumn();
 
+$daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
+$is_popular_today = in_array($product_id, $daily_popular_ids, true);
+
+$form_action = 'edit-product.php?id=' . $product_id;
+$submit_label = 'SAVE CHANGES';
+$is_editing = true;
+
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/admin-nav.php';
 ?>
 
-<section class="admin-section">
-    <div class="container admin-form-container">
+<main class="admin-workspace">
+    <section class="admin-section">
+        <div class="container admin-form-container">
+            <p class="tech-label">// ASSET_RECORD_UPDATE</p>
+            <h1 class="section-heading">EDIT PRODUCT</h1>
+            <p class="dashboard-subtext">Update product details, stock, storefront pricing, and featured status.</p>
 
-        <p class="tech-label">// ASSET_RECORD_UPDATE</p>
-        <h1 class="section-heading">EDIT PRODUCT</h1>
-
-        <?php if (!empty($errors)) : ?>
-            <ul class="form-message form-message-error">
-                <?php foreach ($errors as $error) : ?>
-                    <li><?php echo safe_output($error); ?></li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-
-        <form
-            class="admin-form"
-            method="post"
-            action="edit-product.php?id=<?php echo (int) $product_id; ?>"
-            enctype="multipart/form-data"
-        >
-            <?php echo csrf_field(); ?>
-
-            <div class="form-row">
-                <label>CURRENT IMAGE</label>
-
-                <img
-                    src="<?php echo safe_output(asset_url($product['image'])); ?>"
-                    alt=""
-                    class="admin-current-image"
-                >
-            </div>
-
-            <div class="form-row">
-                <label for="product_code">PRODUCT CODE</label>
-
-                <input
-                    type="text"
-                    id="product_code"
-                    name="product_code"
-                    required
-                    value="<?php echo safe_output($old['product_code']); ?>"
-                >
-            </div>
-
-            <div class="form-row">
-                <label for="name">NAME</label>
-
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    value="<?php echo safe_output($old['name']); ?>"
-                >
-            </div>
-
-            <div class="form-row">
-                <label for="description">DESCRIPTION</label>
-
-                <textarea
-                    id="description"
-                    name="description"
-                    rows="4"
-                ><?php echo safe_output($old['description']); ?></textarea>
-            </div>
-
-            <div class="form-row-split">
-
-                <div class="form-row">
-                    <label for="price">PRICE (&#8369;)</label>
-
-                    <input
-                        type="number"
-                        id="price"
-                        name="price"
-                        step="0.01"
-                        min="0.01"
-                        required
-                        value="<?php echo safe_output($old['price']); ?>"
-                    >
-                </div>
-
-                <div class="form-row">
-                    <label for="discount_price">
-                        DISCOUNT PRICE (&#8369;, optional)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="discount_price"
-                        name="discount_price"
-                        step="0.01"
-                        min="0.01"
-                        value="<?php echo safe_output($old['discount_price']); ?>"
-                    >
-                </div>
-
-            </div>
-
-            <div class="form-row">
-                <label for="quantity">QUANTITY IN STOCK</label>
-
-                <input
-                    type="number"
-                    id="quantity"
-                    name="quantity"
-                    min="0"
-                    step="1"
-                    required
-                    value="<?php echo safe_output($old['quantity']); ?>"
-                >
-            </div>
-
-            <div class="form-row">
-                <label for="image">
-                    REPLACE IMAGE (optional — JPG/PNG/WEBP, up to 5MB)
-                </label>
-
-                <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    accept=".jpg,.jpeg,.png,.webp"
-                >
-            </div>
-
-            <div class="form-row-checkboxes">
-
-                <label class="checkbox-label">
-                    <input
-                        type="checkbox"
-                        name="is_featured"
-                        <?php echo $is_featured ? 'checked' : ''; ?>
-                    >
-                    Show in Featured Collection
-                </label>
-
-            </div>
-
-            <div class="auto-popularity">
-                <span>AUTOMATIC POPULARITY</span>
-                <strong><?php echo $units_sold; ?> SOLD</strong>
-                <em><?php echo $units_sold >= POPULAR_THRESHOLD ? 'POPULAR' : 'STANDARD'; ?></em>
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                SAVE CHANGES <span class="arrow">→</span>
-            </button>
-
-        </form>
-
-    </div>
-</section>
+            <?php require __DIR__ . '/../includes/product-form.php'; ?>
+        </div>
+    </section>
+</main>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

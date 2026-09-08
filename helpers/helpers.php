@@ -41,6 +41,24 @@ function get_cart_count($conn, $user_id) {
     return ($row && $row['total']) ? (int) $row['total'] : 0;
 }
 
+function get_daily_popular_product_ids($conn, $limit = 2) {
+    $limit = max(1, (int) $limit);
+
+    $sql = "SELECT oi.product_id, SUM(oi.quantity) AS units_sold
+            FROM order_items oi
+            JOIN orders o ON o.id = oi.order_id
+            WHERE o.status = 'completed'
+              AND DATE(o.created_at) = CURDATE()
+            GROUP BY oi.product_id
+            ORDER BY units_sold DESC, oi.product_id ASC
+            LIMIT {$limit}";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+
+    return array_map('intval', array_column($stmt->fetchAll(), 'product_id'));
+}
+
 function nav_href($item, $current_page) {
     if ($item['type'] === 'page') {
         return BASE_URL . ltrim($item['href'], '/');

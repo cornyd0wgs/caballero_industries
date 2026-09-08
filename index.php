@@ -23,6 +23,7 @@ $stmt = $conn->prepare(
 );
 $stmt->execute();
 $collection_products = $stmt->fetchAll();
+$daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
 ?>
 
 <!-- =========================================================
@@ -173,7 +174,7 @@ $collection_products = $stmt->fetchAll();
           <a href="product.php?id=<?php echo (int) $product['id']; ?>" class="product-card">
             <div class="product-image">
               <div class="product-tags">
-                <?php if ((int) $product['units_sold'] >= POPULAR_THRESHOLD) : ?>
+                <?php if (in_array((int) $product['id'], $daily_popular_ids, true)) : ?>
                   <span class="slant-tag slant-tag-popular"><span>POPULAR</span></span>
                 <?php endif; ?>
                 <?php if ($product['discount_price']) : ?>

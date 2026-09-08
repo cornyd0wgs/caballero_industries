@@ -15,7 +15,7 @@ if (is_admin()) {
 }
 
 $stmt = $conn->prepare(
-    'SELECT *
+    'SELECT id, recipient_name, contact_number, delivery_address, city, province, postal_code, total_amount, status, created_at
      FROM orders
      WHERE user_id = ?
      ORDER BY created_at DESC'
@@ -26,56 +26,68 @@ $orders = $stmt->fetchAll();
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<section class="dashboard-shell">
+<section class="account-shell">
     <div class="container">
-        <div class="dashboard-heading">
+        <section class="account-page-heading">
             <div>
-                <p class="tech-label">// ORDER_HISTORY</p>
-                <h1 class="section-heading">YOUR ORDERS</h1>
+                <p class="account-kicker">ORDER HISTORY // CUSTOMER RECORD</p>
+                <h1>MY ORDERS</h1>
+                <p>Follow the status and value of every order placed with Caballero Industries.</p>
             </div>
-        </div>
+            <a href="<?php echo BASE_URL; ?>index.php#gallery" class="account-outline-button">SHOP COLLECTION</a>
+        </section>
 
         <?php require __DIR__ . '/../includes/account-nav.php'; ?>
 
-        <div class="dashboard-table-wrap">
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>ORDER</th>
-                        <th>AMOUNT</th>
-                        <th>STATUS</th>
-                        <th>DATE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!$orders): ?>
-                        <tr>
-                            <td colspan="4">No orders yet.</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($orders as $order): ?>
-                            <tr>
-                                <td>
-                                    #<?php echo str_pad($order['id'], 4, '0', STR_PAD_LEFT); ?>
-                                </td>
-
-                                <td><?php echo format_price($order['total_amount']); ?></td>
-
-                                <td>
-                                    <span class="status-badge status-<?php echo safe_output($order['status']); ?>">
-                                        <?php echo strtoupper(safe_output($order['status'])); ?>
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+        <section class="account-card account-orders-full">
+            <?php if (!$orders): ?>
+                <div class="account-empty-state account-empty-large">
+                    <strong>YOUR ORDER HISTORY IS EMPTY</strong>
+                    <p>Once you complete checkout, your orders will be recorded here.</p>
+                    <a href="<?php echo BASE_URL; ?>index.php#gallery">EXPLORE COLLECTION →</a>
+                </div>
+            <?php else: ?>
+                <div class="account-order-list account-order-list-full">
+                    <?php foreach ($orders as $order): ?>
+                        <article class="account-order-row account-order-row-full">
+                            <div>
+                                <span>ORDER</span>
+                                <strong>#<?php echo str_pad($order['id'], 4, '0', STR_PAD_LEFT); ?></strong>
+                            </div>
+                            <div>
+                                <span>PLACED</span>
+                                <strong><?php echo date('M d, Y', strtotime($order['created_at'])); ?></strong>
+                                <small><?php echo date('h:i A', strtotime($order['created_at'])); ?></small>
+                            </div>
+                            <div class="account-order-delivery">
+                                <span>DELIVER TO</span>
+                                <?php if (!empty($order['delivery_address'])): ?>
+                                    <strong><?php echo safe_output($order['recipient_name']); ?></strong>
+                                    <small>
+                                        <?php echo safe_output($order['delivery_address']); ?>,
+                                        <?php echo safe_output($order['city']); ?>,
+                                        <?php echo safe_output($order['province']); ?>
+                                        <?php echo safe_output($order['postal_code']); ?>
+                                    </small>
+                                <?php else: ?>
+                                    <strong>Address not recorded</strong>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <span>AMOUNT</span>
+                                <strong><?php echo format_price($order['total_amount']); ?></strong>
+                            </div>
+                            <div>
+                                <span>STATUS</span>
+                                <span class="status-badge status-<?php echo safe_output($order['status']); ?>">
+                                    <?php echo strtoupper(safe_output($order['status'])); ?>
+                                </span>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
     </div>
 </section>
 

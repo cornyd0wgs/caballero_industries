@@ -205,6 +205,29 @@ if ($action === 'remove') {
 // -----------------------------------------------------------------
 if ($action === 'checkout') {
 
+    $recipient_name   = trim($_POST['recipient_name'] ?? '');
+    $contact_number   = trim($_POST['contact_number'] ?? '');
+    $delivery_address = trim($_POST['delivery_address'] ?? '');
+    $city             = trim($_POST['city'] ?? '');
+    $province         = trim($_POST['province'] ?? '');
+    $postal_code      = trim($_POST['postal_code'] ?? '');
+
+    $address_is_valid =
+        $recipient_name !== '' && strlen($recipient_name) <= 100 &&
+        $contact_number !== '' && strlen($contact_number) <= 30 &&
+        $delivery_address !== '' && strlen($delivery_address) <= 255 &&
+        $city !== '' && strlen($city) <= 100 &&
+        $province !== '' && strlen($province) <= 100 &&
+        preg_match('/^[0-9]{4,10}$/', $postal_code);
+
+    if (!$address_is_valid) {
+        $_SESSION['flash_error'] =
+            'Please complete the delivery details. Postal code must contain 4 to 10 digits.';
+
+        header('Location: cart.php');
+        exit;
+    }
+
     // Get everything currently in the user's cart.
     $stmt = $conn->prepare(
         'SELECT
@@ -258,12 +281,28 @@ if ($action === 'checkout') {
 
         $stmt = $conn->prepare(
             'INSERT INTO orders
-                (user_id, total_amount, status)
-             VALUES (?, ?, ?)'
+                (
+                    user_id,
+                    recipient_name,
+                    contact_number,
+                    delivery_address,
+                    city,
+                    province,
+                    postal_code,
+                    total_amount,
+                    status
+                )
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $user_id,
+            $recipient_name,
+            $contact_number,
+            $delivery_address,
+            $city,
+            $province,
+            $postal_code,
             $grand_total,
             'pending'
         ]);

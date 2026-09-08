@@ -35,7 +35,49 @@ $cart_count = is_logged_in()
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>style.css?v=<?php echo filemtime(__DIR__ . '/../style.css'); ?>">
 </head>
 
-<body>
+<body class="page-<?php echo safe_output($current_page ?: 'default'); ?>">
+
+    <?php if ($current_page === 'admin') : ?>
+
+        <header class="admin-topbar">
+            <div class="admin-topbar-title">
+                <span class="admin-topbar-mark">}</span>
+                <span>// ADMIN PANEL</span>
+            </div>
+
+            <div class="admin-topbar-actions">
+                <a href="<?php echo BASE_URL; ?>" class="admin-topbar-link">VIEW STORE</a>
+                <a href="<?php echo ADMIN_URL; ?>profile.php" class="admin-user-chip">
+                    <span class="admin-avatar"><?php echo strtoupper(substr($_SESSION['user_name'] ?? 'A', 0, 1)); ?></span>
+                    <span><?php echo safe_output($_SESSION['user_name'] ?? 'Admin'); ?></span>
+                </a>
+                <a href="<?php echo REGISTER_URL; ?>logout.php" class="admin-topbar-link">LOGOUT</a>
+            </div>
+        </header>
+
+    <?php elseif ($current_page === 'account') : ?>
+
+        <header class="account-topbar">
+            <div class="container account-topbar-inner">
+                <a href="<?php echo BASE_URL; ?>" class="account-brand" aria-label="Back to Caballero Industries">
+                    <img src="<?php echo BASE_URL; ?>assets/header-logo.png" alt="Caballero Industries">
+                </a>
+
+                <div class="account-topbar-actions">
+                    <a href="<?php echo BASE_URL; ?>index.php#gallery" class="account-topbar-link">SHOP</a>
+                    <a href="<?php echo CART_URL; ?>cart.php" class="account-topbar-link">
+                        CART<?php echo $cart_count > 0 ? ' (' . $cart_count . ')' : ''; ?>
+                    </a>
+                    <span class="account-user-chip">
+                        <span class="account-avatar"><?php echo strtoupper(substr($_SESSION['user_name'] ?? 'U', 0, 1)); ?></span>
+                        <span><?php echo safe_output($_SESSION['user_name'] ?? 'Customer'); ?></span>
+                    </span>
+                    <a href="<?php echo REGISTER_URL; ?>logout.php" class="account-topbar-link account-logout">LOGOUT</a>
+                </div>
+            </div>
+        </header>
+
+    <?php else : ?>
 
     <!-- =========================================================
          HEADER / NAVIGATION
@@ -51,27 +93,21 @@ $cart_count = is_logged_in()
                 aria-label="<?php echo $site_name; ?> — home"
             >
                 <img
-                    src="<?php echo BASE_URL; ?>assets/logo2.png"
+                    src="<?php echo BASE_URL; ?>assets/header-logo.png"
                     alt="<?php echo $site_name; ?> logo"
                     class="logo-img"
                 >
             </a>
 
-
             <nav class="main-nav" id="mainNav">
-
                 <ul class="nav-list">
-
                     <?php foreach ($nav_items as $item) : ?>
-
                         <?php
                         $href = nav_href($item, $current_page);
-
                         $is_active = ($item['type'] === 'anchor')
                             ? ($current_page === 'home' && $item['target'] === 'home')
                             : ($current_page === 'contact');
                         ?>
-
                         <li>
                             <a
                                 href="<?php echo $href; ?>"
@@ -84,19 +120,9 @@ $cart_count = is_logged_in()
                                 <?php echo $item['label']; ?>
                             </a>
                         </li>
-
                     <?php endforeach; ?>
 
-
-                    <!-- Utility links: cart + account.
-                         Sit inside the same collapsible menu
-                         so they work on mobile too. -->
-
-                    <li
-                        class="nav-divider"
-                        aria-hidden="true"
-                    ></li>
-
+                    <li class="nav-divider" aria-hidden="true"></li>
 
                     <li>
                         <a
@@ -105,39 +131,23 @@ $cart_count = is_logged_in()
                             data-nav-key="cart"
                         >
                             CART
-
                             <?php if ($cart_count > 0) : ?>
-                                <span class="cart-badge">
-                                    <?php echo $cart_count; ?>
-                                </span>
+                                <span class="cart-badge"><?php echo $cart_count; ?></span>
                             <?php endif; ?>
-
                         </a>
                     </li>
 
-
                     <?php if (is_logged_in()) : ?>
-
                         <?php if (is_admin()) : ?>
                             <li><a href="<?php echo ADMIN_URL; ?>admin.php" class="nav-link<?php echo $current_page === 'admin' ? ' active' : ''; ?>" data-nav-key="admin">ADMIN</a></li>
                         <?php else : ?>
                             <li><a href="<?php echo ACCOUNT_URL; ?>dashboard.php" class="nav-link<?php echo $current_page === 'account' ? ' active' : ''; ?>" data-nav-key="account">ACCOUNT</a></li>
                         <?php endif; ?>
 
-
                         <li>
-                            <a
-                                href="<?php echo REGISTER_URL; ?>logout.php"
-                                class="nav-link"
-                                data-nav-key="logout"
-                            >
-                                LOGOUT
-                            </a>
+                            <a href="<?php echo REGISTER_URL; ?>logout.php" class="nav-link" data-nav-key="logout">LOGOUT</a>
                         </li>
-
-
                     <?php else : ?>
-
                         <li>
                             <a
                                 href="<?php echo REGISTER_URL; ?>login.php"
@@ -147,15 +157,9 @@ $cart_count = is_logged_in()
                                 LOGIN
                             </a>
                         </li>
-
                     <?php endif; ?>
-
                 </ul>
-
             </nav>
-
-
-            <!-- Hamburger menu button (mobile only) -->
 
             <button
                 class="hamburger"
@@ -168,30 +172,17 @@ $cart_count = is_logged_in()
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
             </button>
-
         </div>
-
     </header>
-
-
-    <!-- =========================================================
-         STATUS BAR — thin technical strip above the main nav
-    ========================================================== -->
 
     <div class="status-bar">
         <div class="container status-bar-inner">
-
-            <span class="status-left">
-                <?php echo $status_left; ?>
-            </span>
-
-            <span class="status-right">
-                <?php echo $status_right; ?>
-            </span>
-
+            <span class="status-left"><?php echo $status_left; ?></span>
+            <span class="status-right"><?php echo $status_right; ?></span>
         </div>
     </div>
 
+    <?php endif; ?>
 
     <main>
 

@@ -1,0 +1,37 @@
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependency folders (only if added later)
+vendor/
+node_modules/
+
+# Runtime logs and temporary files
+*.log
+contacts/contact-log.txt
+/tmp/
+/cache/
+
+# Local database backups / exports
+/database/backups/
+/database/*.backup.sql
+/database/*.dump.sql
+
+# Temporary uploaded files
+/images/products/tmp/
+
+# Archive/build leftovers
+*.zip
+*.rar

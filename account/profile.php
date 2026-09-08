@@ -112,17 +112,43 @@ $account_tab = 'profile';
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<section class="dashboard-shell">
+<section class="account-shell">
     <div class="container">
-        <div class="dashboard-heading">
+        <section class="account-page-heading">
             <div>
-                <p class="tech-label">// OPERATOR_IDENTITY</p>
-                <h1 class="section-heading">PROFILE</h1>
+                <p class="account-kicker">IDENTITY & SECURITY // CUSTOMER PROFILE</p>
+                <h1>PROFILE & SECURITY</h1>
+                <p>Keep your account details current and change your password when needed.</p>
             </div>
-        </div>
+            <a href="dashboard.php" class="account-outline-button">BACK TO OVERVIEW</a>
+        </section>
 
         <?php require __DIR__ . '/../includes/account-nav.php'; ?>
-        <?php require __DIR__ . '/../includes/profile-form.php'; ?>
+
+        <div class="account-profile-layout">
+            <aside class="account-card account-profile-sidecard">
+                <div class="account-profile-avatar account-profile-avatar-large">
+                    <?php echo strtoupper(substr($user['full_name'], 0, 1)); ?>
+                </div>
+                <span class="account-member-since">CUSTOMER PROFILE</span>
+                <h2><?php echo safe_output($user['full_name']); ?></h2>
+                <p><?php echo safe_output($user['email']); ?></p>
+                <div class="account-security-note">
+                    <strong>ACCOUNT STATUS</strong>
+                    <span>ACTIVE / SECURED</span>
+                </div>
+            </aside>
+
+            <section class="account-card account-profile-form-card">
+                <div class="account-card-heading">
+                    <div>
+                        <span>PERSONAL DETAILS</span>
+                        <h2>EDIT PROFILE</h2>
+                    </div>
+                </div>
+                <?php require __DIR__ . '/../includes/profile-form.php'; ?>
+            </section>
+        </div>
     </div>
 </section>
 

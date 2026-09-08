@@ -155,6 +155,7 @@ require __DIR__ . '/../includes/header.php';
                     <tr>
                         <th>ORDER</th>
                         <th>CUSTOMER</th>
+                        <th>DELIVERY</th>
                         <th>AMOUNT</th>
                         <th>STATUS</th>
                         <th>DATE</th>
@@ -164,7 +165,7 @@ require __DIR__ . '/../includes/header.php';
                 <tbody>
                     <?php if (!$orders): ?>
                         <tr>
-                            <td colspan="6">No orders found.</td>
+                            <td colspan="7">No orders found.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($orders as $order): ?>
@@ -187,6 +188,23 @@ require __DIR__ . '/../includes/header.php';
                                     <small class="table-subtext">
                                         <?php echo safe_output($order['email']); ?>
                                     </small>
+                                </td>
+
+                                <td class="order-delivery-cell">
+                                    <?php if (!empty($order['delivery_address'])): ?>
+                                        <strong><?php echo safe_output($order['recipient_name']); ?></strong>
+                                        <small class="table-subtext">
+                                            <?php echo safe_output($order['contact_number']); ?>
+                                        </small>
+                                        <small class="table-subtext">
+                                            <?php echo safe_output($order['delivery_address']); ?>,
+                                            <?php echo safe_output($order['city']); ?>,
+                                            <?php echo safe_output($order['province']); ?>
+                                            <?php echo safe_output($order['postal_code']); ?>
+                                        </small>
+                                    <?php else: ?>
+                                        <span class="muted-text">Address not recorded</span>
+                                    <?php endif; ?>
                                 </td>
 
                                 <td><?php echo format_price($order['total_amount']); ?></td>

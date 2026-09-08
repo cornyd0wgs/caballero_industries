@@ -31,6 +31,7 @@ $sql = "
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $products = $stmt->fetchAll();
+$daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
 
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -63,8 +64,8 @@ require __DIR__ . '/../includes/header.php';
                     $stock_status = 'NOMINAL';
                 }
 
-                $popularity = $units_sold >= POPULAR_THRESHOLD
-                    ? 'POPULAR'
+                $popularity = in_array((int) $product['id'], $daily_popular_ids, true)
+                    ? 'POPULAR TODAY'
                     : 'STANDARD';
                 ?>
 

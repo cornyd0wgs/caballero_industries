@@ -10,6 +10,12 @@ require_login(); // must be logged in to have a cart
 
 $user_id = current_user_id();
 
+// Use the account name as the default recipient name at checkout.
+$stmt = $conn->prepare('SELECT full_name FROM users WHERE id = ?');
+$stmt->execute([$user_id]);
+$checkout_user = $stmt->fetch();
+$recipient_name = $checkout_user['full_name'] ?? '';
+
 // Join cart_items with products so we get the name/price/image/stock
 // in one query instead of looping and querying per-item.
 $stmt = $conn->prepare(
@@ -167,11 +173,80 @@ require __DIR__ . '/../includes/header.php';
             <strong><?php echo format_price($grand_total); ?></strong>
           </div>
 
-          <form method="post" action="cart-action.php">
+          <form method="post" action="cart-action.php" class="checkout-delivery-form">
             <?php echo csrf_field(); ?>
             <input type="hidden" name="action" value="checkout">
+
+            <div class="checkout-delivery-heading">
+              <span>DELIVERY DETAILS</span>
+              <small>Used for this order only</small>
+            </div>
+
+            <div class="checkout-address-grid checkout-address-grid-primary">
+              <div class="checkout-field">
+                <label for="recipient_name">RECIPIENT NAME</label>
+                <input
+                  id="recipient_name"
+                  type="text"
+                  name="recipient_name"
+                  maxlength="100"
+                  value="<?php echo safe_output($recipient_name); ?>"
+                  required
+                >
+              </div>
+
+              <div class="checkout-field">
+                <label for="contact_number">CONTACT NUMBER</label>
+                <input
+                  id="contact_number"
+                  type="tel"
+                  name="contact_number"
+                  maxlength="30"
+                  placeholder="e.g. 0917 123 4567"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label for="delivery_address">STREET / BARANGAY</label>
+              <textarea
+                id="delivery_address"
+                name="delivery_address"
+                rows="3"
+                maxlength="255"
+                placeholder="House no., street, barangay"
+                required
+              ></textarea>
+            </div>
+
+            <div class="checkout-address-grid">
+              <div class="checkout-field">
+                <label for="city">CITY / MUNICIPALITY</label>
+                <input id="city" type="text" name="city" maxlength="100" required>
+              </div>
+
+              <div class="checkout-field">
+                <label for="province">PROVINCE</label>
+                <input id="province" type="text" name="province" maxlength="100" required>
+              </div>
+            </div>
+
+            <div class="checkout-field checkout-postal-field">
+              <label for="postal_code">POSTAL CODE</label>
+              <input
+                id="postal_code"
+                type="text"
+                name="postal_code"
+                maxlength="20"
+                inputmode="numeric"
+                placeholder="e.g. 6200"
+                required
+              >
+            </div>
+
             <button type="submit" class="btn btn-primary cart-checkout-button">
-              CHECKOUT <span class="arrow">→</span>
+              PLACE ORDER <span class="arrow">→</span>
             </button>
           </form>
 

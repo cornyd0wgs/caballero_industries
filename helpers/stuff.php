@@ -1,6 +1,6 @@
 <?php
 /**
- * config.php
+ * stuff.php
  * -------------------------------------------------------------
  * All the text/content for the site lives here as plain PHP
  * arrays. index.php loops over these arrays to build the page.
@@ -14,8 +14,7 @@
     define('ADMIN_URL', '/caballero-industries/admin/');
     define('REGISTER_URL', '/caballero-industries/register/');
     define('ACCOUNT_URL', '/caballero-industries/account/');
-    define('POPULAR_THRESHOLD', 5);
-    // define('CONTACT_URL','/caballero-industries/contacts/');
+    define('DAILY_POPULAR_LIMIT', 2);
 
 // Basic site info
 $site_name  = 'CABALLERO INDUSTRIES';
