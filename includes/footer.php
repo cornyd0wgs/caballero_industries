@@ -106,7 +106,7 @@ require_once __DIR__ . '/../helpers/stuff.php';
 </footer>
 
 
-<script src="<?php echo BASE_URL; ?>script.js"></script>
+<script src="<?php echo BASE_URL; ?>script.js?v=<?php echo filemtime(__DIR__ . '/../script.js'); ?>"></script>
 
 </body>
 </html>

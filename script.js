@@ -43,6 +43,13 @@ document.addEventListener('DOMContentLoaded', function () {
      smoothly and land below the fixed header instead of under it.
   ---------------------------------------------------------------- */
   const header = document.getElementById('siteHeader');
+  const statusBar = document.querySelector('.status-bar');
+
+  function getFixedOffset() {
+    const headerHeight = header ? header.offsetHeight : 0;
+    const statusHeight = statusBar ? statusBar.offsetHeight : 0;
+    return headerHeight + statusHeight;
+  }
 
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
     link.addEventListener('click', function (e) {
@@ -54,8 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       e.preventDefault();
 
-      const headerHeight = header ? header.offsetHeight : 0;
-      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+      const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - getFixedOffset() - 12;
 
       window.scrollTo({
         top: targetPosition,
@@ -66,39 +72,201 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* -------------------------------------------------------------
-     3. ACTIVE NAVIGATION STATE
-     Highlights the nav link for whichever section is currently
-     in view as the user scrolls down the page.
+     3. HARMONIZED ACTIVE NAVIGATION
+     Every desktop nav item uses the same single orange indicator.
+     Same-page section changes and full-page changes both start from
+     the previously active item and use the exact same CSS transition.
   ---------------------------------------------------------------- */
-  const navLinks = document.querySelectorAll('.nav-link');
-  const sections = Array.from(navLinks)
+  const navList = document.querySelector('.main-nav .nav-list');
+  const allNavLinks = navList
+    ? Array.from(navList.querySelectorAll('.nav-link[data-nav-key]'))
+    : [];
+
+  const sectionLinks = allNavLinks.filter(function (link) {
+    return link.hasAttribute('data-section');
+  });
+
+  const sectionItems = sectionLinks
     .map(function (link) {
-      const id = link.getAttribute('href');
-      return id && id.length > 1 ? document.querySelector(id) : null;
+      const sectionId = link.getAttribute('data-section');
+      const section = document.getElementById(sectionId);
+      return section ? { link: link, section: section } : null;
     })
     .filter(Boolean);
 
-  function setActiveLink() {
-    const headerHeight = header ? header.offsetHeight : 0;
-    const scrollPos = window.pageYOffset + headerHeight + 40;
+  let navIndicator = null;
 
-    let currentSectionId = sections.length ? '#' + sections[0].id : null;
+  if (navList) {
+    navIndicator = document.createElement('li');
+    navIndicator.className = 'nav-active-indicator';
+    navIndicator.setAttribute('aria-hidden', 'true');
+    navList.appendChild(navIndicator);
+  }
 
-    sections.forEach(function (section) {
-      if (section.offsetTop <= scrollPos) {
-        currentSectionId = '#' + section.id;
+  function linkByKey(key) {
+    return allNavLinks.find(function (link) {
+      return link.getAttribute('data-nav-key') === key;
+    }) || null;
+  }
+
+  function indicatorPositionFor(link) {
+    if (!navList || !link) return null;
+
+    const listRect = navList.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    const indicatorWidth = 14;
+    const centerX = linkRect.left - listRect.left + (linkRect.width / 2);
+
+    return {
+      x: centerX - (indicatorWidth / 2),
+      width: indicatorWidth
+    };
+  }
+
+  function placeNavIndicator(link, animate) {
+    if (!navList || !navIndicator || !link || window.innerWidth <= 640) return;
+
+    const position = indicatorPositionFor(link);
+    if (!position) return;
+
+    if (!animate) {
+      navIndicator.classList.remove('is-ready');
+    }
+
+    navList.style.setProperty('--indicator-x', position.x + 'px');
+    navList.style.setProperty('--indicator-width', position.width + 'px');
+    navIndicator.classList.add('is-visible');
+
+    if (!animate) {
+      navIndicator.getBoundingClientRect();
+    }
+  }
+
+  function activeNavLink() {
+    return navList ? navList.querySelector('.nav-link.active') : null;
+  }
+
+  function activateSection(sectionId, moveIndicator) {
+    sectionLinks.forEach(function (link) {
+      link.classList.toggle(
+        'active',
+        link.getAttribute('data-section') === sectionId
+      );
+    });
+
+    if (moveIndicator !== false) {
+      const activeLink = activeNavLink();
+      if (activeLink) {
+        navIndicator?.classList.add('is-ready');
+        placeNavIndicator(activeLink, true);
+      }
+    }
+  }
+
+  function currentSectionId() {
+    if (!sectionItems.length) return null;
+
+    const activeLine = getFixedOffset() + 48;
+    let currentSection = sectionItems[0].section.id;
+
+    sectionItems.forEach(function (item) {
+      if (item.section.getBoundingClientRect().top <= activeLine) {
+        currentSection = item.section.id;
       }
     });
 
-    navLinks.forEach(function (link) {
-      link.classList.toggle('active', link.getAttribute('href') === currentSectionId);
-    });
+    return currentSection;
   }
 
-  if (sections.length) {
-    window.addEventListener('scroll', setActiveLink, { passive: true });
-    setActiveLink();
+  function updateActiveSection() {
+    const sectionId = currentSectionId();
+    if (sectionId) activateSection(sectionId, true);
   }
+
+  /* Save one stable key before a full page navigation.
+     A key such as "home", "gallery", or "contact" stays the same
+     even when the actual href is different on another PHP page. */
+  allNavLinks.forEach(function (link) {
+    link.addEventListener('click', function () {
+      const href = link.getAttribute('href') || '';
+      const isSamePageSection = href.startsWith('#');
+
+      if (isSamePageSection) return;
+
+      const current = activeNavLink();
+      if (current) {
+        sessionStorage.setItem(
+          'caballeroNavFromKey',
+          current.getAttribute('data-nav-key') || ''
+        );
+      }
+    });
+  });
+
+  /* On the homepage, select the correct section first. A URL hash is
+     preferred because it tells us exactly which nav item was requested. */
+  if (sectionItems.length) {
+    const hashSection = window.location.hash.replace('#', '');
+    const hashLink = sectionLinks.find(function (link) {
+      return link.getAttribute('data-section') === hashSection;
+    });
+
+    if (hashLink) {
+      activateSection(hashSection, false);
+    } else {
+      const initialSection = currentSectionId();
+      if (initialSection) activateSection(initialSection, false);
+    }
+
+    sectionLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        activateSection(link.getAttribute('data-section'), true);
+      });
+    });
+
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+  }
+
+  /* One initialization path for EVERY page. If we came from another
+     page, start under that old nav item and slide to the new active one.
+     This works in both directions: HOME -> CONTACT and CONTACT -> HOME,
+     as well as ABOUT/GALLERY/CART/LOGIN/etc. */
+  if (navList && navIndicator && window.innerWidth > 640) {
+    const destination = activeNavLink();
+    const fromKey = sessionStorage.getItem('caballeroNavFromKey');
+    const source = fromKey ? linkByKey(fromKey) : null;
+
+    sessionStorage.removeItem('caballeroNavFromKey');
+
+    if (destination && source && source !== destination) {
+      placeNavIndicator(source, false);
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          navIndicator.classList.add('is-ready');
+          placeNavIndicator(destination, true);
+        });
+      });
+    } else if (destination) {
+      placeNavIndicator(destination, false);
+
+      requestAnimationFrame(function () {
+        navIndicator.classList.add('is-ready');
+      });
+    }
+  }
+
+  window.addEventListener('resize', function () {
+    if (!navIndicator || window.innerWidth <= 640) return;
+
+    const current = activeNavLink();
+    if (current) {
+      placeNavIndicator(current, false);
+      requestAnimationFrame(function () {
+        navIndicator.classList.add('is-ready');
+      });
+    }
+  });
 
 
   /* -------------------------------------------------------------

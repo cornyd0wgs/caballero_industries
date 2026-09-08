@@ -115,35 +115,36 @@ require __DIR__ . '/../includes/header.php';
               </td>
 
               <td class="admin-actions">
-
-                <a
-                  href="edit-product.php?id=<?php echo (int) $product['id']; ?>"
-                  class="text-link"
-                >
-                  EDIT
-                </a>
-
-                <form
-                  method="post"
-                  action="delete-product.php"
-                  onsubmit="return confirm('Delete this product? This cannot be undone.');"
-                >
-                  <?php echo csrf_field(); ?>
-
-                  <input
-                    type="hidden"
-                    name="product_id"
-                    value="<?php echo (int) $product['id']; ?>"
+                <div class="admin-action-group">
+                  <a
+                    href="edit-product.php?id=<?php echo (int) $product['id']; ?>"
+                    class="admin-action-link admin-action-edit"
                   >
+                    EDIT
+                  </a>
 
-                  <button
-                    type="submit"
-                    class="btn-small btn-small-remove"
+                  <form
+                    method="post"
+                    action="delete-product.php"
+                    class="admin-delete-form"
+                    onsubmit="return confirm('Delete this product? This cannot be undone.');"
                   >
-                    DELETE
-                  </button>
-                </form>
+                    <?php echo csrf_field(); ?>
 
+                    <input
+                      type="hidden"
+                      name="product_id"
+                      value="<?php echo (int) $product['id']; ?>"
+                    >
+
+                    <button
+                      type="submit"
+                      class="admin-action-link admin-action-delete"
+                    >
+                      DELETE
+                    </button>
+                  </form>
+                </div>
               </td>
 
             </tr>

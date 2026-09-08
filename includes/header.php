@@ -32,29 +32,10 @@ $cart_count = is_logged_in()
 
     
 
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>style.css?v=<?php echo filemtime(__DIR__ . '/../style.css'); ?>">
 </head>
 
 <body>
-
-    <!-- =========================================================
-         STATUS BAR — thin technical strip above the main nav
-    ========================================================== -->
-
-    <div class="status-bar">
-        <div class="container status-bar-inner">
-
-            <span class="status-left">
-                <?php echo $status_left; ?>
-            </span>
-
-            <span class="status-right">
-                <?php echo $status_right; ?>
-            </span>
-
-        </div>
-    </div>
-
 
     <!-- =========================================================
          HEADER / NAVIGATION
@@ -70,7 +51,7 @@ $cart_count = is_logged_in()
                 aria-label="<?php echo $site_name; ?> — home"
             >
                 <img
-                    src="<?php echo BASE_URL; ?>assets/logo.png"
+                    src="<?php echo BASE_URL; ?>assets/logo2.png"
                     alt="<?php echo $site_name; ?> logo"
                     class="logo-img"
                 >
@@ -95,6 +76,7 @@ $cart_count = is_logged_in()
                             <a
                                 href="<?php echo $href; ?>"
                                 class="nav-link<?php echo $is_active ? ' active' : ''; ?>"
+                                data-nav-key="<?php echo $item['type'] === 'anchor' ? safe_output($item['target']) : 'contact'; ?>"
                                 <?php if ($item['type'] === 'anchor') : ?>
                                     data-section="<?php echo safe_output($item['target']); ?>"
                                 <?php endif; ?>
@@ -120,6 +102,7 @@ $cart_count = is_logged_in()
                         <a
                             href="<?php echo CART_URL; ?>cart.php"
                             class="nav-link<?php echo $current_page === 'cart' ? ' active' : ''; ?>"
+                            data-nav-key="cart"
                         >
                             CART
 
@@ -140,7 +123,8 @@ $cart_count = is_logged_in()
                             <li>
                                 <a
                                     href="<?php echo ADMIN_URL; ?>admin.php"
-                                    class="nav-link"
+                                    class="nav-link<?php echo $current_page === 'admin' ? ' active' : ''; ?>"
+                                    data-nav-key="admin"
                                 >
                                     ADMIN
                                 </a>
@@ -153,6 +137,7 @@ $cart_count = is_logged_in()
                             <a
                                 href="<?php echo REGISTER_URL; ?>logout.php"
                                 class="nav-link"
+                                data-nav-key="logout"
                             >
                                 LOGOUT
                             </a>
@@ -165,6 +150,7 @@ $cart_count = is_logged_in()
                             <a
                                 href="<?php echo REGISTER_URL; ?>login.php"
                                 class="nav-link<?php echo $current_page === 'login' ? ' active' : ''; ?>"
+                                data-nav-key="login"
                             >
                                 LOGIN
                             </a>
@@ -174,6 +160,7 @@ $cart_count = is_logged_in()
                             <a
                                 href="<?php echo REGISTER_URL; ?>register.php"
                                 class="nav-link<?php echo $current_page === 'register' ? ' active' : ''; ?>"
+                                data-nav-key="register"
                             >
                                 SIGN UP
                             </a>
@@ -203,6 +190,25 @@ $cart_count = is_logged_in()
         </div>
 
     </header>
+
+
+    <!-- =========================================================
+         STATUS BAR — thin technical strip above the main nav
+    ========================================================== -->
+
+    <div class="status-bar">
+        <div class="container status-bar-inner">
+
+            <span class="status-left">
+                <?php echo $status_left; ?>
+            </span>
+
+            <span class="status-right">
+                <?php echo $status_right; ?>
+            </span>
+
+        </div>
+    </div>
 
 
     <main>
