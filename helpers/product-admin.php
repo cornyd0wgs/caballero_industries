@@ -6,7 +6,7 @@
  * and image-upload rules only have to be maintained in one place.
  */
 
-function validate_product_values(array $values): array
+function validate_product_values(array $values, bool $validate_quantity = true): array
 {
     $errors = [];
 
@@ -37,7 +37,7 @@ function validate_product_values(array $values): array
         $errors[] = 'Discount price must be lower than the regular price.';
     }
 
-    if (!validate_number_range($values['quantity'], 0, 100000)) {
+    if ($validate_quantity && !validate_number_range($values['quantity'] ?? '', 0, 100000)) {
         $errors[] = 'Quantity must be a whole number of 0 or more.';
     }
 

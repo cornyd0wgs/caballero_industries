@@ -109,9 +109,12 @@ require __DIR__ . '/../includes/header.php';
                                 </td>
 
                                 <td>
-                                    <span class="stock-pill <?php echo $stock_class; ?>">
-                                        <?php echo $stock; ?>
-                                    </span>
+                                    <div class="product-stock-control">
+                                        <span class="stock-pill <?php echo $stock_class; ?>">
+                                            <?php echo $stock; ?>
+                                        </span>
+                                        <a href="restock-product.php?id=<?php echo (int) $product['id']; ?>">+ RESTOCK</a>
+                                    </div>
                                 </td>
 
                                 <td>

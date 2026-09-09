@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 $current_page = 'cart';
 
@@ -132,7 +133,7 @@ require __DIR__ . '/../includes/header.php';
                       name="quantity"
                       value="<?php echo (int) $row['cart_quantity']; ?>"
                       min="1"
-                      max="<?php echo (int) $row['stock']; ?>"
+                      max="<?php echo min((int) $row['stock'], MAX_CART_QUANTITY); ?>"
                     >
                     <button type="button" class="quantity-step" data-qty-action="plus" aria-label="Increase quantity">+</button>
                   </div>
@@ -243,6 +244,44 @@ require __DIR__ . '/../includes/header.php';
                 placeholder="e.g. 6200"
                 required
               >
+            </div>
+
+            <div class="checkout-payment-section">
+              <div class="checkout-delivery-heading">
+                <span>PAYMENT METHOD</span>
+                <small>Choose how you will pay</small>
+              </div>
+
+              <div class="payment-method-options">
+                <label class="payment-method-card">
+                  <input type="radio" name="payment_method" value="cash" checked>
+                  <span>
+                    <strong>CASH</strong>
+                    <small>Pay when the order is delivered.</small>
+                  </span>
+                </label>
+
+                <label class="payment-method-card">
+                  <input type="radio" name="payment_method" value="gcash">
+                  <span>
+                    <strong>GCASH</strong>
+                    <small>Enter the GCash reference number below.</small>
+                  </span>
+                </label>
+              </div>
+
+              <div class="checkout-field gcash-reference-field" data-gcash-reference hidden>
+                <label for="gcash_reference">GCASH REFERENCE NUMBER</label>
+                <input
+                  id="gcash_reference"
+                  type="text"
+                  name="gcash_reference"
+                  maxlength="30"
+                  inputmode="numeric"
+                  placeholder="e.g. 1234567890123"
+                >
+                <small class="form-help">Use the reference number shown on your GCash receipt.</small>
+              </div>
             </div>
 
             <button type="submit" class="btn btn-primary cart-checkout-button">

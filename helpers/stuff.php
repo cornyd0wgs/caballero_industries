@@ -15,6 +15,7 @@
     define('REGISTER_URL', '/caballero-industries/register/');
     define('ACCOUNT_URL', '/caballero-industries/account/');
     define('DAILY_POPULAR_LIMIT', 2);
+    define('MAX_CART_QUANTITY', 5);
 
 // Basic site info
 $site_name  = 'CABALLERO INDUSTRIES';

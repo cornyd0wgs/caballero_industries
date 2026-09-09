@@ -157,7 +157,7 @@ require __DIR__ . '/../includes/header.php';
                         <th>CUSTOMER</th>
                         <th>DELIVERY</th>
                         <th>AMOUNT</th>
-                        <th>STATUS</th>
+                        <th>STATUS / PAYMENT</th>
                         <th>DATE</th>
                         <th>UPDATE</th>
                     </tr>
@@ -209,10 +209,18 @@ require __DIR__ . '/../includes/header.php';
 
                                 <td><?php echo format_price($order['total_amount']); ?></td>
 
-                                <td>
+                                <td class="order-status-payment-cell">
                                     <span class="status-badge status-<?php echo safe_output($order['status']); ?>">
                                         <?php echo strtoupper(safe_output($order['status'])); ?>
                                     </span>
+                                    <strong class="order-payment-method">
+                                        <?php echo strtoupper(safe_output($order['payment_method'] ?? 'cash')); ?>
+                                    </strong>
+                                    <?php if (($order['payment_method'] ?? 'cash') === 'gcash' && !empty($order['gcash_reference'])): ?>
+                                        <small class="table-subtext">REF <?php echo safe_output($order['gcash_reference']); ?></small>
+                                    <?php else: ?>
+                                        <small class="table-subtext">PAY ON DELIVERY</small>
+                                    <?php endif; ?>
                                 </td>
 
                                 <td>

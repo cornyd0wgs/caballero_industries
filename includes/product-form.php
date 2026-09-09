@@ -93,18 +93,29 @@ $is_popular_today = $is_popular_today ?? false;
         </div>
     </div>
 
-    <div class="form-row">
-        <label for="quantity">QUANTITY IN STOCK</label>
-        <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            min="0"
-            step="1"
-            required
-            value="<?php echo safe_output($old['quantity']); ?>"
-        >
-    </div>
+    <?php if ($is_editing) : ?>
+        <div class="form-row">
+            <label>CURRENT STOCK</label>
+            <div class="admin-stock-readonly">
+                <strong><?php echo (int) $product['quantity']; ?> UNITS</strong>
+                <a href="restock-product.php?id=<?php echo (int) $product['id']; ?>">RESTOCK PRODUCT →</a>
+            </div>
+            <small class="form-help">Stock is managed separately so editing product details cannot overwrite inventory by accident.</small>
+        </div>
+    <?php else : ?>
+        <div class="form-row">
+            <label for="quantity">INITIAL STOCK</label>
+            <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                min="0"
+                step="1"
+                required
+                value="<?php echo safe_output($old['quantity']); ?>"
+            >
+        </div>
+    <?php endif; ?>
 
     <div class="form-row">
         <label for="image">

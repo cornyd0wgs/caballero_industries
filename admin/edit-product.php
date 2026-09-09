@@ -45,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'description' => trim($_POST['description'] ?? ''),
         'price' => trim($_POST['price'] ?? ''),
         'discount_price' => trim($_POST['discount_price'] ?? ''),
-        'quantity' => trim($_POST['quantity'] ?? ''),
+        'quantity' => $product['quantity'],
     ];
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
-    $errors = array_merge($errors, validate_product_values($old));
+    $errors = array_merge($errors, validate_product_values($old, false));
 
     if (
         empty($errors) &&
@@ -72,8 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $discount_price = $old['discount_price'] !== ''
             ? (float) $old['discount_price']
             : null;
-        $quantity = (int) $old['quantity'];
-
         $stmt = $conn->prepare(
             'UPDATE products
              SET product_code = ?,
@@ -81,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  description = ?,
                  price = ?,
                  discount_price = ?,
-                 quantity = ?,
                  image = ?,
                  is_featured = ?
              WHERE id = ?'
@@ -93,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old['description'],
             $price,
             $discount_price,
-            $quantity,
             $image_result['path'],
             $is_featured,
             $product_id,
@@ -130,7 +126,7 @@ require __DIR__ . '/../includes/admin-nav.php';
         <div class="container admin-form-container">
             <p class="tech-label">// ASSET_RECORD_UPDATE</p>
             <h1 class="section-heading">EDIT PRODUCT</h1>
-            <p class="dashboard-subtext">Update product details, stock, storefront pricing, and featured status.</p>
+            <p class="dashboard-subtext">Update product details, storefront pricing, image, and featured status. Stock is managed separately.</p>
 
             <?php require __DIR__ . '/../includes/product-form.php'; ?>
         </div>

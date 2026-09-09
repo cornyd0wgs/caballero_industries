@@ -4,6 +4,7 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../auth/validation.php';
 require_once __DIR__ . '/../helpers/helpers.php';
+require_once __DIR__ . '/../helpers/stuff.php';
 
 require_login();
 
@@ -46,13 +47,15 @@ if ($action === 'add') {
 
     $stock = $product ? (int) $product['quantity'] : 0;
 
+    $max_allowed = min($stock, MAX_CART_QUANTITY);
+
     if (
         !$product ||
         $stock < 1 ||
-        !validate_number_range($requested_qty, 1, $stock)
+        !validate_number_range($requested_qty, 1, max($max_allowed, 1))
     ) {
         $_SESSION['flash_error'] =
-            'Please choose a valid quantity for that item.';
+            'You may order up to ' . MAX_CART_QUANTITY . ' units of one product, subject to available stock.';
 
         header('Location: ' . BASE_URL . 'product.php?id=' . $product_id);
         exit;
@@ -78,11 +81,16 @@ if ($action === 'add') {
         ? (int) $existing['quantity']
         : 0;
 
-    // Never exceed available stock.
-    $new_qty = min(
-        $existing_qty + $requested_qty,
-        $stock
-    );
+    $new_qty = $existing_qty + $requested_qty;
+
+    if ($new_qty > $max_allowed) {
+        $_SESSION['flash_error'] =
+            'You already have ' . $existing_qty . ' in your cart. The maximum is ' .
+            $max_allowed . ' for this product.';
+
+        header('Location: ' . BASE_URL . 'product.php?id=' . $product_id);
+        exit;
+    }
 
     // Insert new cart item or update existing one.
     $stmt = $conn->prepare(
@@ -143,15 +151,17 @@ if ($action === 'update') {
 
     $stock = (int) $row['stock'];
 
+    $max_allowed = min($stock, MAX_CART_QUANTITY);
+
     if (
         !validate_number_range(
             $requested_qty,
             1,
-            max($stock, 1)
+            max($max_allowed, 1)
         )
     ) {
         $_SESSION['flash_error'] =
-            'Please enter a valid quantity.';
+            'Quantity must be between 1 and ' . max($max_allowed, 1) . ' for this product.';
 
         header('Location: cart.php');
         exit;
@@ -211,6 +221,8 @@ if ($action === 'checkout') {
     $city             = trim($_POST['city'] ?? '');
     $province         = trim($_POST['province'] ?? '');
     $postal_code      = trim($_POST['postal_code'] ?? '');
+    $payment_method  = strtolower(trim($_POST['payment_method'] ?? ''));
+    $gcash_reference = trim($_POST['gcash_reference'] ?? '');
 
     $address_is_valid =
         $recipient_name !== '' && strlen($recipient_name) <= 100 &&
@@ -226,6 +238,23 @@ if ($action === 'checkout') {
 
         header('Location: cart.php');
         exit;
+    }
+
+    if (!in_array($payment_method, ['cash', 'gcash'], true)) {
+        $_SESSION['flash_error'] = 'Please choose Cash or GCash as your payment method.';
+        header('Location: cart.php');
+        exit;
+    }
+
+    if ($payment_method === 'gcash') {
+        if (!preg_match('/^[0-9]{6,30}$/', $gcash_reference)) {
+            $_SESSION['flash_error'] =
+                'GCash reference number must contain 6 to 30 digits.';
+            header('Location: cart.php');
+            exit;
+        }
+    } else {
+        $gcash_reference = null;
     }
 
     // Get everything currently in the user's cart.
@@ -254,6 +283,17 @@ if ($action === 'checkout') {
 
         header('Location: cart.php');
         exit;
+    }
+
+    foreach ($cart_rows as $row) {
+        $allowed_quantity = min((int) $row['stock'], MAX_CART_QUANTITY);
+
+        if ((int) $row['cart_quantity'] < 1 || (int) $row['cart_quantity'] > $allowed_quantity) {
+            $_SESSION['flash_error'] =
+                'One or more cart quantities exceed the purchase limit or available stock. Please update your cart.';
+            header('Location: cart.php');
+            exit;
+        }
     }
 
 
@@ -289,10 +329,12 @@ if ($action === 'checkout') {
                     city,
                     province,
                     postal_code,
+                    payment_method,
+                    gcash_reference,
                     total_amount,
                     status
                 )
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
@@ -303,6 +345,8 @@ if ($action === 'checkout') {
             $city,
             $province,
             $postal_code,
+            $payment_method,
+            $gcash_reference,
             $grand_total,
             'pending'
         ]);

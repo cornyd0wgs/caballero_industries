@@ -15,7 +15,7 @@ if (is_admin()) {
 }
 
 $stmt = $conn->prepare(
-    'SELECT id, recipient_name, contact_number, delivery_address, city, province, postal_code, total_amount, status, created_at
+    'SELECT id, recipient_name, contact_number, delivery_address, city, province, postal_code, payment_method, gcash_reference, total_amount, status, created_at
      FROM orders
      WHERE user_id = ?
      ORDER BY created_at DESC'
@@ -76,6 +76,15 @@ require __DIR__ . '/../includes/header.php';
                             <div>
                                 <span>AMOUNT</span>
                                 <strong><?php echo format_price($order['total_amount']); ?></strong>
+                            </div>
+                            <div>
+                                <span>PAYMENT</span>
+                                <strong><?php echo strtoupper(safe_output($order['payment_method'] ?? 'cash')); ?></strong>
+                                <?php if (($order['payment_method'] ?? 'cash') === 'gcash' && !empty($order['gcash_reference'])): ?>
+                                    <small>REF <?php echo safe_output($order['gcash_reference']); ?></small>
+                                <?php else: ?>
+                                    <small>PAY ON DELIVERY</small>
+                                <?php endif; ?>
                             </div>
                             <div>
                                 <span>STATUS</span>

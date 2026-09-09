@@ -2671,3 +2671,187 @@ main { padding-top: calc(var(--header-height) + var(--status-bar-height)); }
     width: 100%;
   }
 }
+
+
+/* =========================================================
+   REVIEWER REQUIREMENTS — STOCK, PURCHASE LIMIT, PAYMENT
+========================================================= */
+.quantity-limit-note {
+  margin-top: 2px;
+  color: #6f7578;
+  font-family: var(--font-ui);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .11em;
+}
+
+.admin-stock-readonly {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-strong);
+  background: #090c0d;
+}
+
+.admin-stock-readonly strong {
+  color: var(--color-white);
+  font-family: var(--font-heading);
+  font-size: 15px;
+}
+
+.admin-stock-readonly a,
+.product-stock-control a {
+  color: var(--color-accent);
+  font-family: var(--font-ui);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+.product-stock-control {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.checkout-payment-section {
+  display: grid;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.payment-method-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.payment-method-card {
+  min-width: 0;
+  min-height: 76px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--color-border-strong);
+  background: #080b0d;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease;
+}
+
+.payment-method-card:has(input:checked) {
+  border-color: var(--color-accent);
+  background: rgba(255, 106, 0, .055);
+}
+
+.payment-method-card input {
+  width: 15px;
+  height: 15px;
+  margin: 2px 0 0;
+  accent-color: var(--color-accent);
+}
+
+.payment-method-card span {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.payment-method-card strong {
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+.payment-method-card small {
+  color: #707679;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.gcash-reference-field[hidden] {
+  display: none !important;
+}
+
+.order-payment-cell strong {
+  display: block;
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: .1em;
+}
+
+.restock-panel {
+  max-width: 620px;
+  margin: 28px 0 0;
+  padding: 26px;
+  border: 1px solid var(--color-border-strong);
+  background: #0b0e10;
+}
+
+.restock-product-summary {
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.restock-product-summary > span {
+  color: var(--color-accent);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  letter-spacing: .13em;
+}
+
+.restock-product-summary h2 {
+  margin: 6px 0 12px;
+  font-family: var(--font-heading);
+  font-size: 24px;
+}
+
+.restock-product-summary p {
+  color: var(--color-gray);
+  font-size: 10px;
+}
+
+.restock-product-summary p strong {
+  margin-left: 10px;
+  color: var(--color-white);
+}
+
+.restock-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .payment-method-options {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stock-readonly {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 12px;
+  }
+}
+
+.order-status-payment-cell {
+  min-width: 128px;
+}
+
+.order-payment-method {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  letter-spacing: .11em;
+}

@@ -107,8 +107,6 @@ $sales_stmt = $conn->prepare(
 );
 $sales_stmt->execute([$product_id]);
 $units_sold = (int) $sales_stmt->fetchColumn();
-$daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
-$is_popular_today = in_array($product_id, $daily_popular_ids, true);
 
 
 require __DIR__ . '/includes/header.php';
@@ -120,7 +118,7 @@ require __DIR__ . '/includes/header.php';
         <div class="product-detail-image-wrap">
             <div class="product-detail-image">
                 <div class="product-tags product-tags-detail">
-                    <?php if ($is_popular_today) : ?>
+                    <?php if ($units_sold >= POPULAR_THRESHOLD) : ?>
                         <span class="slant-tag slant-tag-popular"><span>POPULAR</span></span>
                     <?php endif; ?>
                     <?php if ($product['discount_price']) :
@@ -206,12 +204,13 @@ require __DIR__ . '/includes/header.php';
                                         id="quantity"
                                         name="quantity"
                                         min="1"
-                                        max="<?php echo (int) $product['quantity']; ?>"
+                                        max="<?php echo min((int) $product['quantity'], MAX_CART_QUANTITY); ?>"
                                         value="1"
                                         required
                                     >
                                     <button type="button" class="quantity-step" data-qty-action="plus" aria-label="Increase quantity">+</button>
                                 </div>
+                                <small class="quantity-limit-note">MAX <?php echo MAX_CART_QUANTITY; ?> PER PRODUCT</small>
                             </div>
 
                             <button type="submit" class="btn btn-primary product-add-button">

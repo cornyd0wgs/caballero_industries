@@ -417,4 +417,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  /* -------------------------------------------------------------
+     CHECKOUT PAYMENT METHOD
+     GCash needs a receipt/reference number. Cash does not.
+  ---------------------------------------------------------------- */
+  const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+  const gcashField = document.querySelector('[data-gcash-reference]');
+  const gcashInput = document.querySelector('#gcash_reference');
+
+  function syncPaymentFields() {
+    if (!paymentRadios.length || !gcashField || !gcashInput) return;
+
+    const selected = document.querySelector('input[name="payment_method"]:checked');
+    const useGcash = selected && selected.value === 'gcash';
+
+    gcashField.hidden = !useGcash;
+    gcashInput.required = useGcash;
+
+    if (!useGcash) {
+      gcashInput.value = '';
+    }
+  }
+
+  paymentRadios.forEach(function (radio) {
+    radio.addEventListener('change', syncPaymentFields);
+  });
+
+  syncPaymentFields();
+
 });
