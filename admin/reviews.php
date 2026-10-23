@@ -3,36 +3,23 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/ReviewController.php';
 
 $current_page = 'admin';
 $admin_tab = 'reviews';
 
 require_admin();
 
+$reviewController = new ReviewController($conn);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf()) {
     $review_id = (int) ($_POST['review_id'] ?? 0);
-
-    $stmt = $conn->prepare('DELETE FROM reviews WHERE id = ?');
-    $stmt->execute([$review_id]);
-
+    $reviewController->deleteReview($review_id);
     header('Location: reviews.php');
     exit;
 }
 
-$sql = '
-    SELECT
-        r.*,
-        u.full_name,
-        p.name AS product_name
-    FROM reviews r
-    JOIN users u ON u.id = r.user_id
-    JOIN products p ON p.id = r.product_id
-    ORDER BY r.created_at DESC
-';
-
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$reviews = $stmt->fetchAll();
+$reviews = $reviewController->getAllAdmin();
 
 require __DIR__ . '/../includes/header.php';
 ?>

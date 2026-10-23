@@ -5,14 +5,17 @@ require_once __DIR__ . '/database/db.php';
 require_once __DIR__ . '/auth/validation.php';
 require_once __DIR__ . '/helpers/helpers.php';
 require_once __DIR__ . '/helpers/stuff.php';
+require_once __DIR__ . '/controllers/ProductController.php';
+require_once __DIR__ . '/controllers/ReviewController.php';
 
 $current_page = 'product';
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+$productController = new ProductController($conn);
+$reviewController = new ReviewController($conn);
+
 // 1) Load the product requested in the URL: product.php?id=3
-$stmt = $conn->prepare('SELECT * FROM products WHERE id = ?');
-$stmt->execute([$product_id]);
-$product = $stmt->fetch();
+$product = $productController->getById($product_id);
 
 if (!$product) {
     http_response_code(404);
@@ -49,48 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'revie
 
     if (!verify_csrf()) {
         $review_errors[] = 'Your form session expired. Please try again.';
-    }
-
-    if (!validate_number_range($rating, 1, 5)) {
-        $review_errors[] = 'Rating must be from 1 to 5.';
-    }
-
-    if ($comment === '' || strlen($comment) > 1000) {
-        $review_errors[] = 'Review must be between 1 and 1000 characters.';
-    }
-
-    if (empty($review_errors)) {
-        $stmt = $conn->prepare(
-            'INSERT INTO reviews (product_id, user_id, rating, comment)
-             VALUES (?, ?, ?, ?)'
-        );
-
-        $stmt->execute([
-            $product_id,
-            current_user_id(),
-            (int) $rating,
-            $comment
-        ]);
-
-        $_SESSION['review_success'] = 'Review posted. Thank you!';
-        header('Location: ' . BASE_URL . 'product.php?id=' . $product_id . '#reviews');
-        exit;
+    } else {
+        $result = $reviewController->addReview(current_user_id(), $product_id, $rating, $comment);
+        if ($result['success']) {
+            $_SESSION['review_success'] = 'Review posted. Thank you!';
+            header('Location: ' . BASE_URL . 'product.php?id=' . $product_id . '#reviews');
+            exit;
+        } else {
+            $review_errors = array_merge($review_errors, $result['errors']);
+        }
     }
 }
 
 // 3) Load reviews and the reviewer's name in one query.
-$stmt = $conn->prepare(
-    'SELECT reviews.rating,
-            reviews.comment,
-            reviews.created_at,
-            users.full_name
-     FROM reviews
-     JOIN users ON reviews.user_id = users.id
-     WHERE reviews.product_id = ?
-     ORDER BY reviews.created_at DESC'
-);
-$stmt->execute([$product_id]);
-$reviews = $stmt->fetchAll();
+$reviews = $reviewController->getProductReviews($product_id);
 
 $average_rating = 0;
 if (!empty($reviews)) {

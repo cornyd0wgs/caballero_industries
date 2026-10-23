@@ -5,6 +5,7 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../auth/validation.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
 
 $current_page = 'register';
 
@@ -41,73 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'age' => $age
     );
 
-    // ---- Run every field through auth/validation.php ----
-    if (!validate_name($full_name)) {
-        $errors[] = 'Please enter your real name using letters only (no numbers or symbols).';
-    }
-
-    if (!validate_email($email)) {
-        $errors[] = 'Please enter a valid email address.';
-    }
-
-    if (!validate_age($age)) {
-        $errors[] = 'Age must be a whole number between 1 and 100.';
-    }
-
-    if (!validate_password($password)) {
-        $errors[] = 'Password must be at least 8 characters long.';
-    }
-
-    if ($password !== $confirm_password) {
-        $errors[] = 'Passwords do not match.';
-    }
-
-    // ---- Check whether email already exists ----
     if (empty($errors)) {
+        $authController = new AuthController($conn);
+        $result = $authController->register($full_name, $email, $age, $password, $confirm_password);
 
-        $stmt = $conn->prepare(
-            'SELECT id FROM users WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        if ($stmt->fetch()) {
-            $errors[] = 'An account with that email already exists. Try logging in instead.';
+        if ($result['success']) {
+            header('Location: ../index.php');
+            exit;
+        } else {
+            $errors = array_merge($errors, $result['errors']);
         }
-    }
-
-    // ---- All checks passed: create the account ----
-    if (empty($errors)) {
-
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $age_int = (int) $age;
-
-        $stmt = $conn->prepare(
-            'INSERT INTO users
-            (full_name, email, password_hash, age, role)
-            VALUES (?, ?, ?, ?, ?)'
-        );
-
-        $stmt->execute([
-            $full_name,
-            $email,
-            $password_hash,
-            $age_int,
-            'customer'
-        ]);
-
-        // PDO equivalent of mysqli_insert_id()
-        $new_user_id = $conn->lastInsertId();
-
-        // Log the new user in immediately.
-        session_regenerate_id(true);
-
-        $_SESSION['user_id']   = $new_user_id;
-        $_SESSION['user_name'] = $full_name;
-        $_SESSION['user_role'] = 'customer';
-
-        header('Location:' . '../index.php');
-        exit;
     }
 }
 

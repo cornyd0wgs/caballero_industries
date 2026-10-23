@@ -4,6 +4,7 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/CartController.php';
 
 $current_page = 'cart';
 
@@ -17,43 +18,11 @@ $stmt->execute([$user_id]);
 $checkout_user = $stmt->fetch();
 $recipient_name = $checkout_user['full_name'] ?? '';
 
-// Join cart_items with products so we get the name/price/image/stock
-// in one query instead of looping and querying per-item.
-$stmt = $conn->prepare(
-    'SELECT cart_items.id AS cart_item_id,
-            cart_items.quantity AS cart_quantity,
-            products.id AS product_id,
-            products.name,
-            products.image,
-            products.price,
-            products.discount_price,
-            products.quantity AS stock
-     FROM cart_items
-     JOIN products ON cart_items.product_id = products.id
-     WHERE cart_items.user_id = ?
-     ORDER BY cart_items.added_at DESC'
-);
-
-$stmt->execute([$user_id]);
-$cart_rows = $stmt->fetchAll();
-
-// Work out each row's subtotal and the cart's grand total using
-// the discount price when one is set.
-$grand_total = 0;
-
-foreach ($cart_rows as &$row) {
-    $unit_price = $row['discount_price']
-        ? $row['discount_price']
-        : $row['price'];
-
-    $row['unit_price'] = $unit_price;
-    $row['subtotal'] = $unit_price * $row['cart_quantity'];
-    $grand_total += $row['subtotal'];
-}
-
-unset($row); // break the reference now that the loop is done
-
-$item_count = array_sum(array_column($cart_rows, 'cart_quantity'));
+$cartController = new CartController($conn);
+$cartData = $cartController->getCart($user_id);
+$cart_rows = $cartData['items'];
+$grand_total = $cartData['grand_total'];
+$item_count = $cartData['item_count'];
 
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error'] ?? null;

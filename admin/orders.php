@@ -3,6 +3,7 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/OrderController.php';
 
 $current_page = 'admin';
 $admin_tab = 'orders';
@@ -10,69 +11,22 @@ $error = null;
 
 require_admin();
 
+$orderController = new OrderController($conn);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf()) {
         $error = 'Your form session expired.';
     } else {
         $order_id = (int) ($_POST['order_id'] ?? 0);
         $new_status = $_POST['status'] ?? '';
-        $allowed_statuses = ['pending', 'processing', 'completed', 'cancelled'];
 
-        $stmt = $conn->prepare('SELECT status FROM orders WHERE id = ?');
-        $stmt->execute([$order_id]);
-        $order = $stmt->fetch();
-
-        $allowed_transitions = [
-            'pending' => ['processing', 'completed', 'cancelled'],
-            'processing' => ['completed', 'cancelled'],
-            'completed' => [],
-            'cancelled' => [],
-        ];
-
-        $current_status = $order['status'] ?? null;
-        $can_change = $order
-            && in_array($new_status, $allowed_statuses, true)
-            && in_array($new_status, $allowed_transitions[$current_status] ?? [], true);
-
-        if (!$can_change) {
-            $error = 'That status change is not allowed.';
+        $result = $orderController->updateStatus($order_id, $new_status);
+        if ($result['success']) {
+            $_SESSION['flash_success'] = 'Order #' . $order_id . ' updated.';
+            header('Location: orders.php');
+            exit;
         } else {
-            $conn->beginTransaction();
-
-            try {
-                if ($new_status === 'cancelled') {
-                    $stmt = $conn->prepare(
-                        'SELECT product_id, quantity FROM order_items WHERE order_id = ?'
-                    );
-                    $stmt->execute([$order_id]);
-                    $items = $stmt->fetchAll();
-
-                    foreach ($items as $item) {
-                        $update_stock = $conn->prepare(
-                            'UPDATE products SET quantity = quantity + ? WHERE id = ?'
-                        );
-                        $update_stock->execute([
-                            (int) $item['quantity'],
-                            (int) $item['product_id'],
-                        ]);
-                    }
-                }
-
-                $stmt = $conn->prepare('UPDATE orders SET status = ? WHERE id = ?');
-                $stmt->execute([$new_status, $order_id]);
-
-                $conn->commit();
-
-                $_SESSION['flash_success'] = 'Order #' . $order_id . ' updated.';
-                header('Location: orders.php');
-                exit;
-            } catch (Throwable $e) {
-                if ($conn->inTransaction()) {
-                    $conn->rollBack();
-                }
-
-                $error = 'Could not update the order.';
-            }
+            $error = $result['message'];
         }
     }
 }
@@ -84,27 +38,7 @@ if (!in_array($filter, $valid_filters, true)) {
     $filter = 'all';
 }
 
-$sql = '
-    SELECT
-        o.*,
-        u.full_name,
-        u.email
-    FROM orders o
-    JOIN users u ON u.id = o.user_id
-';
-
-$params = [];
-
-if ($filter !== 'all') {
-    $sql .= ' WHERE o.status = ?';
-    $params[] = $filter;
-}
-
-$sql .= ' ORDER BY o.created_at DESC';
-
-$stmt = $conn->prepare($sql);
-$stmt->execute($params);
-$orders = $stmt->fetchAll();
+$orders = $orderController->getAllOrders($filter === 'all' ? null : $filter);
 
 $flash = $_SESSION['flash_success'] ?? null;
 unset($_SESSION['flash_success']);

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../auth/validation.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
 
 $current_page = 'login';
 
@@ -37,43 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $old_email = $email;
 
-    if (!validate_email($email)) {
-        $errors[] = 'Please enter a valid email address.';
-    }
-
-    if ($password === '') {
-        $errors[] = 'Please enter your password.';
-    }
-
-    // ---- Check login credentials using PDO ----
     if (empty($errors)) {
+        $authController = new AuthController($conn);
+        $result = $authController->login($email, $password);
 
-        $stmt = $conn->prepare(
-            'SELECT id, full_name, password_hash, role
-             FROM users
-             WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        $user = $stmt->fetch();
-
-        // Deliberately vague error message — don't reveal whether
-        // the email or password was wrong.
-        if (!$user || !password_verify($password, $user['password_hash'])) {
-
-            $errors[] = 'Incorrect email or password.';
-
-        } else {
-
-            session_regenerate_id(true);
-
-            $_SESSION['user_id']   = $user['id'];
-            $_SESSION['user_name'] = $user['full_name'];
-            $_SESSION['user_role'] = $user['role'];
-
+        if ($result['success']) {
             header('Location: ' . $redirect_to);
             exit;
+        } else {
+            $errors = array_merge($errors, $result['errors']);
         }
     }
 }

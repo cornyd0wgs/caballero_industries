@@ -4,17 +4,16 @@ require_once __DIR__ . '/../auth/validation.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/ProductController.php';
 
 $current_page = 'admin';
 $admin_tab = 'products';
 
 require_admin();
 
+$productController = new ProductController($conn);
 $product_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
-$stmt = $conn->prepare('SELECT id, product_code, name, quantity FROM products WHERE id = ?');
-$stmt->execute([$product_id]);
-$product = $stmt->fetch();
+$product = $productController->getById($product_id);
 
 if (!$product) {
     header('Location: products.php');
@@ -36,16 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $conn->prepare(
-            'UPDATE products SET quantity = quantity + ? WHERE id = ?'
-        );
-        $stmt->execute([(int) $add_quantity, $product_id]);
-
-        $_SESSION['flash_success'] =
-            'Added ' . (int) $add_quantity . ' units to ' . $product['name'] . '.';
-
-        header('Location: products.php');
-        exit;
+        $result = $productController->restock($product_id, (int)$add_quantity);
+        if ($result['success']) {
+            $_SESSION['flash_success'] =
+                'Added ' . (int) $add_quantity . ' units to ' . $product['name'] . '.';
+            header('Location: products.php');
+            exit;
+        } else {
+            $errors[] = $result['message'];
+        }
     }
 }
 

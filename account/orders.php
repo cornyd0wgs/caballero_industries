@@ -3,6 +3,7 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/OrderController.php';
 
 $current_page = 'account';
 $account_tab = 'orders';
@@ -14,14 +15,8 @@ if (is_admin()) {
     exit;
 }
 
-$stmt = $conn->prepare(
-    'SELECT id, recipient_name, contact_number, delivery_address, city, province, postal_code, payment_method, gcash_reference, total_amount, status, created_at
-     FROM orders
-     WHERE user_id = ?
-     ORDER BY created_at DESC'
-);
-$stmt->execute([current_user_id()]);
-$orders = $stmt->fetchAll();
+$orderController = new OrderController($conn);
+$orders = $orderController->getUserOrders(current_user_id());
 
 require __DIR__ . '/../includes/header.php';
 ?>

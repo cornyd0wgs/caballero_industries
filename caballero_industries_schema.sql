@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS orders (
     city             VARCHAR(100) NOT NULL,
     province         VARCHAR(100) NOT NULL,
     postal_code      VARCHAR(20)  NOT NULL,
+    payment_method   VARCHAR(20)  NOT NULL DEFAULT 'cash',
+    gcash_reference  VARCHAR(50)  NULL,
     total_amount     DECIMAL(10,2) NOT NULL,
     status           VARCHAR(20) NOT NULL DEFAULT 'pending',
     created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

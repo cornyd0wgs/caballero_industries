@@ -3,34 +3,15 @@ require_once __DIR__ . '/../auth/auth.php';
 require_once __DIR__ . '/../database/db.php';
 require_once __DIR__ . '/../helpers/helpers.php';
 require_once __DIR__ . '/../helpers/stuff.php';
+require_once __DIR__ . '/../controllers/ProductController.php';
 
 $current_page = 'admin';
 $admin_tab = 'products';
 
 require_admin();
 
-$sql = "
-    SELECT
-        p.*,
-        COALESCE(
-            SUM(
-                CASE
-                    WHEN o.status = 'completed' THEN oi.quantity
-                    ELSE 0
-                END
-            ),
-            0
-        ) AS units_sold
-    FROM products p
-    LEFT JOIN order_items oi ON oi.product_id = p.id
-    LEFT JOIN orders o ON o.id = oi.order_id
-    GROUP BY p.id
-    ORDER BY p.created_at DESC
-";
-
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$products = $stmt->fetchAll();
+$productController = new ProductController($conn);
+$products = $productController->getAllAdmin();
 $daily_popular_ids = get_daily_popular_product_ids($conn, DAILY_POPULAR_LIMIT);
 
 $flash_success = $_SESSION['flash_success'] ?? null;
